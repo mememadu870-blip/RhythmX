@@ -491,7 +491,7 @@ public partial class ChartEditorUI : Control
         GameManager.Instance?.ReturnToMainMenu();
     }
     
-    private void OnTimelineChanged(double value)
+    public void OnTimelineChanged(double value)
     {
         _currentTime = value / 100.0 * _duration;
         UpdateTimeLabel();

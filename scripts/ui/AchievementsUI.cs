@@ -166,7 +166,7 @@ public partial class AchievementsUI : Control
         PopulateAchievements();
     }
     
-    private void OnBackPressed()
+    public void OnBackPressed()
     {
         GameManager.Instance?.ReturnToMainMenu();
     }

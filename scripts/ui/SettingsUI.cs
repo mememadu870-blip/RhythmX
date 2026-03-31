@@ -142,7 +142,7 @@ public partial class SettingsUI : Control
         GameManager.Instance?.SetNoteSpeed(1.0f);
     }
     
-    private void OnBackPressed()
+    public void OnBackPressed()
     {
         GameManager.Instance?.ReturnToMainMenu();
     }

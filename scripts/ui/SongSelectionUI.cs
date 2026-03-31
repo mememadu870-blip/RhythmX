@@ -186,7 +186,7 @@ public partial class SongSelectionUI : Control
         }
     }
     
-    private void OnPlayPressed()
+    public void OnPlayPressed()
     {
         if (_selectedSong == null) return;
         
@@ -196,12 +196,12 @@ public partial class SongSelectionUI : Control
         GameManager.Instance?.StartGame(_selectedSong, chart, _selectedDifficulty);
     }
     
-    private void OnBackPressed()
+    public void OnBackPressed()
     {
         GameManager.Instance?.ReturnToMainMenu();
     }
     
-    private void OnImportPressed()
+    public void OnImportPressed()
     {
         ImportSongUI.Instance?.ShowImportDialog();
     }

@@ -587,7 +587,7 @@ public partial class GameplayUI : Control
         GetTree().ReloadCurrentScene();
     }
     
-    private void OnQuitPressed()
+    public void OnQuitPressed()
     {
         GetTree().Paused = false;
         GameManager.Instance?.ReturnToMainMenu();

@@ -193,7 +193,7 @@ public partial class ResultsUI : Control
         }
     }
     
-    private void OnRetryPressed()
+    public void OnRetryPressed()
     {
         var chart = _song?.GetChart(_difficulty);
         if (_song != null && chart != null)
@@ -202,7 +202,7 @@ public partial class ResultsUI : Control
         }
     }
     
-    private void OnNextPressed()
+    public void OnNextPressed()
     {
         // Go to next song in library
         var songs = SongLibrary.Instance?.Songs;
@@ -228,7 +228,7 @@ public partial class ResultsUI : Control
         }
     }
     
-    private void OnBackPressed()
+    public void OnBackPressed()
     {
         GameManager.Instance?.ReturnToMainMenu();
     }

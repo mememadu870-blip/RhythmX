@@ -45,32 +45,32 @@ public partial class MainMenuUI : Control
         }
     }
     
-    // These methods are called by scene signals
-    private void OnPlayPressed()
+    // These methods are called by scene signals - must be public for Godot signals
+    public void OnPlayPressed()
     {
         GD.Print("OnPlayPressed called");
         GameManager.Instance?.ChangeState(GameManager.GameState.SongSelection);
     }
     
-    private void OnImportPressed()
+    public void OnImportPressed()
     {
         GD.Print("OnImportPressed called");
         ImportSongUI.Instance?.ShowImportDialog();
     }
     
-    private void OnEditorPressed()
+    public void OnEditorPressed()
     {
         GD.Print("OnEditorPressed called");
         GameManager.Instance?.ChangeState(GameManager.GameState.ChartEditor);
     }
     
-    private void OnAchievementsPressed()
+    public void OnAchievementsPressed()
     {
         GD.Print("OnAchievementsPressed called");
         GameManager.Instance?.ChangeState(GameManager.GameState.Achievements);
     }
     
-    private void OnSettingsPressed()
+    public void OnSettingsPressed()
     {
         GD.Print("OnSettingsPressed called");
         GameManager.Instance?.ChangeState(GameManager.GameState.Settings);
