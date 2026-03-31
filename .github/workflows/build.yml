@@ -13,10 +13,10 @@ env:
 
 jobs:
   export-windows:
-    name: Windows Export (.NET)
+    name: Windows Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2-mono
+      image: barichello/godot-ci:4.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
     name: Web Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2-mono
+      image: barichello/godot-ci:4.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,10 +75,10 @@ jobs:
         continue-on-error: true
 
   export-linux:
-    name: Linux Export (.NET)
+    name: Linux Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2-mono
+      image: barichello/godot-ci:4.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,10 +100,10 @@ jobs:
           path: build/linux
 
   export-android:
-    name: Android Export (Debug)
+    name: Android Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2-mono
+      image: barichello/godot-ci:4.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
