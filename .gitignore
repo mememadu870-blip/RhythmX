@@ -1,0 +1,32 @@
+# Godot 4.x specific ignores
+.godot/
+.mono/
+*.import
+
+# Build outputs
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# IDE
+.vs/
+.vscode/
+*.csproj.user
+*.sln
+*.userprefs
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# User data (these are generated at runtime)
+user://
+imports/
+
+# Temporary files
+*.tmp
+*.temp
+*.log

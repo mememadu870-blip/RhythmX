@@ -1,0 +1,198 @@
+[gd_scene load_steps=3 format=3 uid="uid://song_selection_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/SongSelectionUI.cs" id="1_song"]
+[ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
+
+[node name="SongSelection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_song")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60
+grow_horizontal = 2
+
+[node name="BackButton" type="Button" parent="Header"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "←"
+
+[node name="TitleLabel" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Select Song"
+horizontal_alignment = 1
+
+[node name="SearchButton" type="Button" parent="Header"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "🔍"
+
+[node name="MainContainer" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70
+offset_bottom = -120
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SongListContainer" type="PanelContainer" parent="MainContainer"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+
+[node name="SongList" type="ScrollContainer" parent="MainContainer/SongListContainer"]
+layout_mode = 2
+
+[node name="SongListVBox" type="VBoxContainer" parent="MainContainer/SongListContainer/SongList"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailContainer" type="PanelContainer" parent="MainContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailVBox" type="VBoxContainer" parent="MainContainer/DetailContainer"]
+layout_mode = 2
+
+[node name="CoverImage" type="TextureRect" parent="MainContainer/DetailContainer/DetailVBox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+stretch_mode = 5
+
+[node name="SongInfo" type="VBoxContainer" parent="MainContainer/DetailContainer/DetailVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SongName" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Neon Pulsar"
+
+[node name="Artist" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 20
+text = "Synthwave Masters"
+
+[node name="StatsGrid" type="GridContainer" parent="MainContainer/DetailContainer/DetailVBox/SongInfo"]
+layout_mode = 2
+columns = 2
+
+[node name="BPMLabel" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo/StatsGrid"]
+layout_mode = 2
+text = "BPM:"
+
+[node name="BPMValue" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo/StatsGrid"]
+layout_mode = 2
+text = "120"
+
+[node name="DurationLabel" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo/StatsGrid"]
+layout_mode = 2
+text = "Duration:"
+
+[node name="DurationValue" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo/StatsGrid"]
+layout_mode = 2
+text = "3:00"
+
+[node name="HighScoreLabel" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo/StatsGrid"]
+layout_mode = 2
+text = "High Score:"
+
+[node name="HighScoreValue" type="Label" parent="MainContainer/DetailContainer/DetailVBox/SongInfo/StatsGrid"]
+layout_mode = 2
+text = "---"
+
+[node name="DifficultyContainer" type="VBoxContainer" parent="MainContainer/DetailContainer/DetailVBox"]
+layout_mode = 2
+
+[node name="DifficultyLabel" type="Label" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Difficulty"
+
+[node name="DifficultyButtons" type="HBoxContainer" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="EasyButton" type="Button" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 1, 0.5, 1)
+text = "Easy"
+
+[node name="NormalButton" type="Button" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.5, 1)
+text = "Normal"
+
+[node name="HardButton" type="Button" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5, 0.5, 1)
+text = "Hard"
+
+[node name="ExpertButton" type="Button" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.3, 1, 1)
+text = "Expert"
+
+[node name="NoteCountLabel" type="Label" parent="MainContainer/DetailContainer/DetailVBox/DifficultyContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+text = "Notes: 0"
+
+[node name="BottomBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="PreviewButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "▶"
+
+[node name="PlayButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(200, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "▶ PLAY"
+
+[node name="LeaderboardButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "🏆"
+
+[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/EasyButton" to="." method="OnDifficultySelected" binds= [0]]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/NormalButton" to="." method="OnDifficultySelected" binds= [1]]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/HardButton" to="." method="OnDifficultySelected" binds= [2]]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/ExpertButton" to="." method="OnDifficultySelected" binds= [3]]
+[connection signal="pressed" from="BottomBar/PlayButton" to="." method="OnPlayPressed"]

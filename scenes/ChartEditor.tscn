@@ -1,0 +1,214 @@
+[gd_scene load_steps=3 format=3 uid="uid://chart_editor_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/ChartEditorUI.cs" id="1_editor"]
+[ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
+
+[node name="ChartEditor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_editor")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50
+grow_horizontal = 2
+
+[node name="BackButton" type="Button" parent="Header"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "←"
+
+[node name="SongName" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "New Chart"
+horizontal_alignment = 1
+
+[node name="BPMLabel" type="Label" parent="Header"]
+layout_mode = 2
+text = "BPM: 120"
+
+[node name="ToolContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 100
+grow_vertical = 2
+
+[node name="ToolVBox" type="VBoxContainer" parent="ToolContainer"]
+layout_mode = 2
+
+[node name="TapTool" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "TAP"
+
+[node name="HoldTool" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+toggle_mode = true
+text = "HOLD"
+
+[node name="SwipeTool" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+toggle_mode = true
+text = "SWIPE"
+
+[node name="EraseTool" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+toggle_mode = true
+text = "ERASE"
+
+[node name="Separator" type="HSeparator" parent="ToolContainer/ToolVBox"]
+layout_mode = 2
+
+[node name="UndoButton" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+text = "Undo"
+
+[node name="RedoButton" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+text = "Redo"
+
+[node name="ClearButton" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+text = "Clear"
+
+[node name="TimelineContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200
+offset_bottom = 100
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="TimelineSlider" type="VSlider" parent="TimelineContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TimeLabel" type="Label" parent="TimelineContainer"]
+layout_mode = 2
+text = "0:00"
+horizontal_alignment = 1
+
+[node name="TrackContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100
+offset_top = 60
+offset_right = -200
+offset_bottom = -100
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Track0" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 130
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="Track1" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchor_left = 0.25
+anchor_top = 0.0
+anchor_right = 0.25
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_right = 130.0
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="Track2" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_right = 130.0
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="Track3" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchor_left = 0.75
+anchor_top = 0.0
+anchor_right = 0.75
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_right = 130.0
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="GridLines" type="Node2D" parent="TrackContainer"]
+
+[node name="NotesContainer" type="Node2D" parent="TrackContainer"]
+
+[node name="BottomBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -80
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(80, 60)
+layout_mode = 2
+text = "▶"
+
+[node name="StopButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(80, 60)
+layout_mode = 2
+text = "⏹"
+
+[node name="SaveButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+text = "Save"
+
+[node name="ExportButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(100, 60)
+layout_mode = 2
+text = "Export"
+
+[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]
+[connection signal="pressed" from="ToolContainer/ToolVBox/UndoButton" to="." method="OnUndoPressed"]
+[connection signal="pressed" from="ToolContainer/ToolVBox/RedoButton" to="." method="OnRedoPressed"]
+[connection signal="pressed" from="ToolContainer/ToolVBox/ClearButton" to="." method="OnClearPressed"]
+[connection signal="pressed" from="BottomBar/PlayButton" to="." method="OnPlayPressed"]
+[connection signal="pressed" from="BottomBar/StopButton" to="." method="OnStopPressed"]
+[connection signal="pressed" from="BottomBar/SaveButton" to="." method="OnSavePressed"]

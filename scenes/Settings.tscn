@@ -1,0 +1,180 @@
+[gd_scene load_steps=3 format=3 uid="uid://settings_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/SettingsUI.cs" id="1_settings"]
+[ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
+
+[node name="Settings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_settings")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60
+grow_horizontal = 2
+
+[node name="BackButton" type="Button" parent="Header"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "←"
+
+[node name="TitleLabel" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Header"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsVBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AudioSection" type="VBoxContainer" parent="ScrollContainer/SettingsVBox"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "🔊 Audio"
+
+[node name="AudioOffsetContainer" type="HBoxContainer" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection/AudioOffsetContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Audio Offset"
+
+[node name="MinusButton" type="Button" parent="ScrollContainer/SettingsVBox/AudioSection/AudioOffsetContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "-10"
+
+[node name="OffsetValue" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection/AudioOffsetContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "0 ms"
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="ScrollContainer/SettingsVBox/AudioSection/AudioOffsetContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+text = "+10"
+
+[node name="AudioOffsetSlider" type="HSlider" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+min_value = -300.0
+max_value = 300.0
+value = 0.0
+
+[node name="SpeedContainer" type="HBoxContainer" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection/SpeedContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Note Speed"
+
+[node name="SpeedValue" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection/SpeedContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "1.0x"
+horizontal_alignment = 1
+
+[node name="SpeedSlider" type="HSlider" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+min_value = 0.5
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="VolumeContainer" type="HBoxContainer" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection/VolumeContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Music Volume"
+
+[node name="VolumeValue" type="Label" parent="ScrollContainer/SettingsVBox/AudioSection/VolumeContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 1
+
+[node name="VolumeSlider" type="HSlider" parent="ScrollContainer/SettingsVBox/AudioSection"]
+layout_mode = 2
+value = 100.0
+
+[node name="VisualSection" type="VBoxContainer" parent="ScrollContainer/SettingsVBox"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="ScrollContainer/SettingsVBox/VisualSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "🎨 Visual"
+
+[node name="FullscreenToggle" type="CheckButton" parent="ScrollContainer/SettingsVBox/VisualSection"]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="ShowComboToggle" type="CheckButton" parent="ScrollContainer/SettingsVBox/VisualSection"]
+layout_mode = 2
+button_pressed = true
+text = "Show Combo"
+
+[node name="ShowJudgmentToggle" type="CheckButton" parent="ScrollContainer/SettingsVBox/VisualSection"]
+layout_mode = 2
+button_pressed = true
+text = "Show Judgment"
+
+[node name="AccountSection" type="VBoxContainer" parent="ScrollContainer/SettingsVBox"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="ScrollContainer/SettingsVBox/AccountSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "👤 Account"
+
+[node name="AccountInfo" type="Label" parent="ScrollContainer/SettingsVBox/AccountSection"]
+layout_mode = 2
+text = "Not logged in"
+
+[node name="LogoutButton" type="Button" parent="ScrollContainer/SettingsVBox/AccountSection"]
+layout_mode = 2
+text = "Logout"
+
+[node name="ResetButton" type="Button" parent="ScrollContainer/SettingsVBox"]
+layout_mode = 2
+text = "Reset to Defaults"
+
+[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]

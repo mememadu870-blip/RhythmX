@@ -1,0 +1,171 @@
+[gd_scene load_steps=3 format=3 uid="uid://main_menu_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/MainMenuUI.cs" id="1_main"]
+[ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_main")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="LogoContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 100
+offset_bottom = 300
+grow_horizontal = 2
+
+[node name="LogoText" type="Label" parent="LogoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 1, 1, 1)
+theme_override_font_sizes/font_size = 72
+text = "RhythmX"
+horizontal_alignment = 1
+
+[node name="SubtitleText" type="Label" parent="LogoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 24
+text = "Play Any Song"
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -200
+offset_bottom = 200
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ButtonContainer" type="VBoxContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="PlayButton" type="Button" parent="CenterContainer/ButtonContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "▶  PLAY"
+
+[node name="ImportButton" type="Button" parent="CenterContainer/ButtonContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "📁  IMPORT SONG"
+
+[node name="EditorButton" type="Button" parent="CenterContainer/ButtonContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "✏️  CHART EDITOR"
+
+[node name="AchievementsButton" type="Button" parent="CenterContainer/ButtonContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "🏆  ACHIEVEMENTS"
+
+[node name="SettingsButton" type="Button" parent="CenterContainer/ButtonContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "⚙️  SETTINGS"
+
+[node name="BottomContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -80
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="VersionLabel" type="Label" parent="BottomContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.4, 0.5, 1)
+theme_override_font_sizes/font_size = 18
+text = "v1.0.0"
+
+[node name="UserInfoContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300
+offset_top = 20
+offset_right = -20
+offset_bottom = 80
+grow_horizontal = 0
+
+[node name="UserAvatar" type="TextureRect" parent="UserInfoContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+stretch_mode = 4
+
+[node name="UserInfo" type="VBoxContainer" parent="UserInfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UserName" type="Label" parent="UserInfoContainer/UserInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Guest"
+
+[node name="UserStats" type="Label" parent="UserInfoContainer/UserInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "Tap to login"
+
+[node name="LoginButton" type="TextureButton" parent="UserInfoContainer"]
+layout_mode = 2
+
+[node name="AchievementProgress" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150
+offset_top = -130
+offset_right = 150
+offset_bottom = -100
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="AchievementIcon" type="TextureRect" parent="AchievementProgress"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+
+[node name="AchievementLabel" type="Label" parent="AchievementProgress"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "0 achievements unlocked"
+
+[connection signal="pressed" from="CenterContainer/ButtonContainer/PlayButton" to="." method="OnPlayPressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/ImportButton" to="." method="OnImportPressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/EditorButton" to="." method="OnEditorPressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/AchievementsButton" to="." method="OnAchievementsPressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/SettingsButton" to="." method="OnSettingsPressed"]

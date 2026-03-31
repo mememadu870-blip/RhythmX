@@ -1,0 +1,110 @@
+[gd_scene load_steps=3 format=3 uid="uid://achievements_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/AchievementsUI.cs" id="1_achievements"]
+[ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
+
+[node name="Achievements" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_achievements")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60
+grow_horizontal = 2
+
+[node name="BackButton" type="Button" parent="Header"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "←"
+
+[node name="TitleLabel" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Achievements"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Header"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+
+[node name="SummaryContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 70
+offset_bottom = 150
+grow_horizontal = 2
+
+[node name="ProgressLabel" type="Label" parent="SummaryContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "0 / 0 Unlocked"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="SummaryContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+show_percentage = false
+
+[node name="HiddenLabel" type="Label" parent="SummaryContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.3, 1, 1)
+text = "Hidden: 0 / 5"
+horizontal_alignment = 1
+
+[node name="TabContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 160
+offset_bottom = 210
+grow_horizontal = 2
+alignment = 1
+
+[node name="AllTab" type="Button" parent="TabContainer"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+text = "All"
+
+[node name="RegularTab" type="Button" parent="TabContainer"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+text = "Regular"
+
+[node name="HiddenTab" type="Button" parent="TabContainer"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+text = "Hidden"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 220
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AchievementList" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]

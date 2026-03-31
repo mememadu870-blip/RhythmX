@@ -1,0 +1,226 @@
+[gd_scene load_steps=3 format=3 uid="uid://gameplay_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/GameplayUI.cs" id="1_game"]
+[ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
+
+[node name="Gameplay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_game")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.05, 1)
+
+[node name="TrackContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -400
+offset_bottom = 400
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Track0" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 180
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="Track1" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchor_left = 0.25
+anchor_top = 0.0
+anchor_right = 0.25
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_right = 180.0
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="Track2" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_right = 180.0
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="Track3" type="ColorRect" parent="TrackContainer"]
+layout_mode = 1
+anchor_left = 0.75
+anchor_top = 0.0
+anchor_right = 0.75
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_right = 180.0
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 0.5)
+
+[node name="JudgmentLine" type="Line2D" parent="TrackContainer"]
+position = Vector2(0, 350)
+points = PackedVector2Array(Vector2(0, 0), Vector2(720, 0))
+width = 4.0
+default_color = Color(0.4, 1, 1, 1)
+
+[node name="NotesContainer" type="Node2D" parent="TrackContainer"]
+position = Vector2(0, -400)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50
+grow_horizontal = 2
+
+[node name="SongName" type="Label" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Song Name"
+horizontal_alignment = 1
+
+[node name="ScoreContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200
+offset_top = 60
+offset_right = -20
+offset_bottom = 160
+grow_horizontal = 0
+
+[node name="ScoreLabel" type="Label" parent="ScoreContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "SCORE"
+horizontal_alignment = 2
+
+[node name="ScoreValue" type="Label" parent="ScoreContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "0"
+horizontal_alignment = 2
+
+[node name="ComboContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100
+offset_top = -200
+offset_right = 100
+offset_bottom = -100
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ComboValue" type="Label" parent="ComboContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "0"
+horizontal_alignment = 1
+
+[node name="ComboLabel" type="Label" parent="ComboContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
+text = "COMBO"
+horizontal_alignment = 1
+
+[node name="JudgmentLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100
+offset_top = -300
+offset_right = 100
+offset_bottom = -250
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = ""
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 50
+offset_bottom = 55
+grow_horizontal = 2
+value = 50.0
+
+[node name="PauseButton" type="Button" parent="."]
+layout_mode = 1
+offset_left = 20
+offset_top = 60
+offset_right = 70
+offset_bottom = 110
+text = "⏸"
+
+[node name="PauseMenu" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PauseVBox" type="VBoxContainer" parent="PauseMenu"]
+layout_mode = 2
+alignment = 1
+
+[node name="PauseTitle" type="Label" parent="PauseMenu/PauseVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="PauseMenu/PauseVBox"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+text = "Resume"
+
+[node name="RestartButton" type="Button" parent="PauseMenu/PauseVBox"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+text = "Restart"
+
+[node name="SettingsButton" type="Button" parent="PauseMenu/PauseVBox"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="PauseMenu/PauseVBox"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+text = "Quit"
+
+[connection signal="pressed" from="PauseButton" to="." method="OnPausePressed"]
+[connection signal="pressed" from="PauseMenu/PauseVBox/ResumeButton" to="." method="OnResumePressed"]
+[connection signal="pressed" from="PauseMenu/PauseVBox/RestartButton" to="." method="OnRestartPressed"]
+[connection signal="pressed" from="PauseMenu/PauseVBox/QuitButton" to="." method="OnQuitPressed"]
