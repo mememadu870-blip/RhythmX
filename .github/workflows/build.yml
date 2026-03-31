@@ -37,32 +37,6 @@ jobs:
           name: windows-build
           path: build/windows
 
-  export-android:
-    name: Android Export
-    runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.2.2
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Setup
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          
-      - name: Android Debug Build
-        run: |
-          mkdir -v -p build/android
-          godot --headless --verbose --export-debug "Android" build/android/${EXPORT_NAME}.apk
-        continue-on-error: true
-        
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-build
-          path: build/android
-
   export-web:
     name: Web Export
     runs-on: ubuntu-latest
@@ -87,6 +61,18 @@ jobs:
         with:
           name: web-build
           path: build/web
+          
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd build/web
+          git init
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Deploy to GitHub Pages"
+          git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git master:gh-pages
+        continue-on-error: true
 
   export-linux:
     name: Linux Export
