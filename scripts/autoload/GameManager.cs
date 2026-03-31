@@ -83,6 +83,9 @@ public partial class GameManager : Node
             case GameState.Achievements:
                 GetTree().ChangeSceneToFile("res://scenes/Achievements.tscn");
                 break;
+            case GameState.ChartEditor:
+                GetTree().ChangeSceneToFile("res://scenes/ChartEditor.tscn");
+                break;
         }
     }
     
