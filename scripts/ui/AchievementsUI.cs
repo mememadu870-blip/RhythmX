@@ -155,13 +155,13 @@ public partial class AchievementsUI : Control
     {
         _currentTab = tab;
         
-        // Update tab button states
+        // Update tab button states using Modulate for visual feedback
         if (_allTab != null)
-            _allTab.ButtonPressed = tab == 0;
+            _allTab.Modulate = tab == 0 ? new Color(0.4f, 1f, 1f) : new Color(1f, 1f, 1f);
         if (_regularTab != null)
-            _regularTab.ButtonPressed = tab == 1;
+            _regularTab.Modulate = tab == 1 ? new Color(0.4f, 1f, 1f) : new Color(1f, 1f, 1f);
         if (_hiddenTab != null)
-            _hiddenTab.ButtonPressed = tab == 2;
+            _hiddenTab.Modulate = tab == 2 ? new Color(0.8f, 0.3f, 1f) : new Color(1f, 1f, 1f);
         
         PopulateAchievements();
     }

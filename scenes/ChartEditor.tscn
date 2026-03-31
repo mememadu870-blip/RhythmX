@@ -98,6 +98,11 @@ custom_minimum_size = Vector2(80, 50)
 layout_mode = 2
 text = "Clear"
 
+[node name="LoadAudioButton" type="Button" parent="ToolContainer/ToolVBox"]
+custom_minimum_size = Vector2(80, 50)
+layout_mode = 2
+text = "Load"
+
 [node name="TimelineContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 11
@@ -212,3 +217,4 @@ text = "Export"
 [connection signal="pressed" from="BottomBar/PlayButton" to="." method="OnPlayPressed"]
 [connection signal="pressed" from="BottomBar/StopButton" to="." method="OnStopPressed"]
 [connection signal="pressed" from="BottomBar/SaveButton" to="." method="OnSavePressed"]
+[connection signal="pressed" from="BottomBar/ExportButton" to="." method="OnExportPressed"]

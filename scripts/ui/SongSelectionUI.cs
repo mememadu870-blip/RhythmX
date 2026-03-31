@@ -19,6 +19,7 @@ public partial class SongSelectionUI : Control
     private Button[] _difficultyButtons = new Button[4];
     private Button _playButton;
     private Button _backButton;
+    private Button _importButton;
     
     private List<SongData> _songs;
     private SongData _selectedSong;
@@ -36,6 +37,7 @@ public partial class SongSelectionUI : Control
         _noteCountLabel = GetNode<Label>("MainContainer/DetailContainer/DetailVBox/DifficultyContainer/NoteCountLabel");
         _playButton = GetNode<Button>("BottomBar/PlayButton");
         _backButton = GetNode<Button>("Header/BackButton");
+        _importButton = GetNode<Button>("BottomBar/ImportButton");
         
         // Get difficulty buttons
         _difficultyButtons[0] = GetNode<Button>("MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/EasyButton");
@@ -49,6 +51,9 @@ public partial class SongSelectionUI : Control
         
         if (_playButton != null)
             _playButton.Pressed += OnPlayPressed;
+        
+        if (_importButton != null)
+            _importButton.Pressed += OnImportPressed;
         
         for (int i = 0; i < _difficultyButtons.Length; i++)
         {
@@ -194,5 +199,10 @@ public partial class SongSelectionUI : Control
     private void OnBackPressed()
     {
         GameManager.Instance?.ReturnToMainMenu();
+    }
+    
+    private void OnImportPressed()
+    {
+        ImportSongUI.Instance?.ShowImportDialog();
     }
 }

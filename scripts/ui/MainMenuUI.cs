@@ -74,8 +74,7 @@ public partial class MainMenuUI : Control
     
     private void OnImportPressed()
     {
-        // TODO: Open import dialog
-        GD.Print("Import pressed");
+        ImportSongUI.Instance?.ShowImportDialog();
     }
     
     private void OnEditorPressed()

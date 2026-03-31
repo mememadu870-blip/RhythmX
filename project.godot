@@ -27,6 +27,7 @@ SongLibrary="*res://scripts/autoload/SongLibrary.cs"
 EffectManager="*res://scripts/autoload/EffectManager.cs"
 StatisticsManager="*res://scripts/autoload/StatisticsManager.cs"
 MockAPIManager="*res://scripts/api/MockAPIManager.cs"
+ImportSongUI="*res://scripts/ui/ImportSongUI.cs"
 
 [display]
 

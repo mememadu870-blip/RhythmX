@@ -20,6 +20,7 @@ public partial class ResultsUI : Control
     private Label _allPerfectBadge;
     private Label _newRecordBadge;
     private Button _retryButton;
+    private Button _nextButton;
     private Button _backButton;
     private Label _songNameLabel;
     private Label _artistLabel;
@@ -43,6 +44,7 @@ public partial class ResultsUI : Control
         _allPerfectBadge = GetNode<Label>("VBoxContainer/BadgesContainer/AllPerfectBadge");
         _newRecordBadge = GetNode<Label>("VBoxContainer/GradeContainer/NewRecordBadge");
         _retryButton = GetNode<Button>("VBoxContainer/ButtonContainer/RetryButton");
+        _nextButton = GetNode<Button>("VBoxContainer/ButtonContainer/NextButton");
         _backButton = GetNode<Button>("VBoxContainer/ButtonContainer/BackButton");
         _songNameLabel = GetNode<Label>("SongInfo/SongName");
         _artistLabel = GetNode<Label>("SongInfo/Artist");
@@ -50,6 +52,8 @@ public partial class ResultsUI : Control
         // Connect signals
         if (_retryButton != null)
             _retryButton.Pressed += OnRetryPressed;
+        if (_nextButton != null)
+            _nextButton.Pressed += OnNextPressed;
         if (_backButton != null)
             _backButton.Pressed += OnBackPressed;
         
@@ -195,6 +199,32 @@ public partial class ResultsUI : Control
         if (_song != null && chart != null)
         {
             GameManager.Instance?.StartGame(_song, chart, _difficulty);
+        }
+    }
+    
+    private void OnNextPressed()
+    {
+        // Go to next song in library
+        var songs = SongLibrary.Instance?.Songs;
+        if (songs == null || songs.Count == 0)
+        {
+            GameManager.Instance?.ReturnToMainMenu();
+            return;
+        }
+        
+        // Find current song index and get next
+        int currentIndex = songs.FindIndex(s => s.Id == _song?.Id);
+        int nextIndex = (currentIndex + 1) % songs.Count;
+        var nextSong = songs[nextIndex];
+        
+        var chart = nextSong?.GetChart(_difficulty);
+        if (nextSong != null && chart != null)
+        {
+            GameManager.Instance?.StartGame(nextSong, chart, _difficulty);
+        }
+        else
+        {
+            GameManager.Instance?.ChangeState(GameManager.GameState.SongSelection);
         }
     }
     

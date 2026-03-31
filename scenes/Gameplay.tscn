@@ -97,6 +97,11 @@ theme_override_font_sizes/font_size = 20
 text = "Song Name"
 horizontal_alignment = 1
 
+[node name="Difficulty" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Normal"
+
 [node name="ScoreContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
