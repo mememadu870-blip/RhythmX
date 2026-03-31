@@ -13,10 +13,10 @@ env:
 
 jobs:
   export-windows:
-    name: Windows Export
+    name: Windows Export (.NET)
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.2.2-mono
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
     name: Web Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.2.2-mono
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,10 +75,10 @@ jobs:
         continue-on-error: true
 
   export-linux:
-    name: Linux Export
+    name: Linux Export (.NET)
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.2.2-mono
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,3 +98,28 @@ jobs:
         with:
           name: linux-build
           path: build/linux
+
+  export-android:
+    name: Android Export (Debug)
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.2.2-mono
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          
+      - name: Android Debug Build
+        run: |
+          mkdir -v -p build/android
+          godot --headless --verbose --export-debug "Android" build/android/${EXPORT_NAME}.apk
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: build/android
