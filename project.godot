@@ -28,6 +28,8 @@ EffectManager="*res://scripts/autoload/EffectManager.cs"
 StatisticsManager="*res://scripts/autoload/StatisticsManager.cs"
 MockAPIManager="*res://scripts/api/MockAPIManager.cs"
 ImportSongUI="*res://scripts/ui/ImportSongUI.cs"
+AudioAnalysis="*res://scripts/audio/AudioAnalysis.cs"
+ChartGenerator="*res://scripts/audio/ChartGenerator.cs"
 
 [display]
 
