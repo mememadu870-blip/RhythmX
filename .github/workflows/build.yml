@@ -21,18 +21,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      - name: Install .NET 8 SDK
+        run: |
+          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
+          ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+          dotnet --version
         
       - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
           
-      - name: Build C# Solution
+      - name: Restore and Build
         run: |
+          dotnet restore
           dotnet build -c Release
           
       - name: Windows Build
@@ -55,18 +59,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      - name: Install .NET 8 SDK
+        run: |
+          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
+          ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+          dotnet --version
         
       - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
           
-      - name: Build C# Solution
+      - name: Restore and Build
         run: |
+          dotnet restore
           dotnet build -c Release
           
       - name: Web Build
@@ -101,18 +109,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      - name: Install .NET 8 SDK
+        run: |
+          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
+          ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+          dotnet --version
         
       - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
           
-      - name: Build C# Solution
+      - name: Restore and Build
         run: |
+          dotnet restore
           dotnet build -c Release
           
       - name: Linux Build
