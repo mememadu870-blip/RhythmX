@@ -21,10 +21,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup
+      - name: Install .NET SDK
+        run: |
+          apt-get update && apt-get install -y dotnet-sdk-8.0
+          
+      - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          
+      - name: Build C# Solution
+        run: |
+          dotnet restore
+          dotnet build -c Release
           
       - name: Windows Build
         run: |
@@ -46,10 +55,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup
+      - name: Install .NET SDK
+        run: |
+          apt-get update && apt-get install -y dotnet-sdk-8.0
+        
+      - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          
+      - name: Build C# Solution
+        run: |
+          dotnet restore
+          dotnet build -c Release
           
       - name: Web Build
         run: |
@@ -83,10 +101,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup
+      - name: Install .NET SDK
+        run: |
+          apt-get update && apt-get install -y dotnet-sdk-8.0
+        
+      - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          
+      - name: Build C# Solution
+        run: |
+          dotnet restore
+          dotnet build -c Release
           
       - name: Linux Build
         run: |
@@ -108,10 +135,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      - name: Setup
+      - name: Install .NET SDK
+        run: |
+          apt-get update && apt-get install -y dotnet-sdk-8.0
+        
+      - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          
+      - name: Build C# Solution
+        run: |
+          dotnet restore
+          dotnet build -c Release
           
       - name: Android Debug Build
         run: |
