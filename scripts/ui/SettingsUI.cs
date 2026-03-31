@@ -106,7 +106,7 @@ public partial class SettingsUI : Control
     
     private void OnVolumeChanged(double value)
     {
-        AudioManager.Instance?.SetVolume((float)(value / 100.0));
+        AudioManager.Instance?.SetMusicVolume((float)(value / 100.0));
         if (_volumeValueLabel != null)
             _volumeValueLabel.Text = $"{value:F0}%";
     }

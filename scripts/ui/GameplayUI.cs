@@ -5,51 +5,139 @@ using System.Collections.Generic;
 namespace RhythmX;
 
 /// <summary>
-/// Gameplay UI Controller
+/// Gameplay UI Controller - Main gameplay scene manager
+/// Handles note spawning, hit detection, scoring, and UI updates
 /// </summary>
 public partial class GameplayUI : Control
 {
+    public static GameplayUI Instance { get; private set; }
+    
     // Node references
     private Node2D _notesContainer;
+    private Control _trackContainer;
     private Label _scoreValueLabel;
     private Label _comboValueLabel;
     private Label _judgmentLabel;
     private Label _songNameLabel;
+    private Label _difficultyLabel;
     private ProgressBar _progressBar;
     private Button _pauseButton;
     private PanelContainer _pauseMenu;
-    private Line2D _judgmentLine;
     
+    // Track lane visuals
+    private Control[] _trackLanes;
+    
+    // Current song data
     private SongData _currentSong;
     private ChartData _currentChart;
     private GameManager.Difficulty _difficulty;
     
+    // Note management
     private readonly List<NoteObject> _activeNotes = new();
     private readonly Queue<NoteData> _noteQueue = new();
     private double _currentTime;
+    
+    // Note settings
     private float _noteSpeed = 400f;
     private float _fallDistance = 800f;
+    private float _hitLineY = 400f;
+    private float _spawnY = -400f;
+    private float _despawnY = 500f;
     
-    // Note prefab
-    private PackedScene _noteScene;
+    // Timing windows (in seconds)
+    private double _perfectWindow = 0.045;
+    private double _greatWindow = 0.090;
+    private double _goodWindow = 0.135;
+    
+    // Game state
+    private bool _isPlaying;
+    private bool _isPaused;
+    private bool _gameStarted;
+    
+    // Hit sound
+    private AudioStream _hitSound;
     
     public override void _Ready()
     {
-        // Get node references
+        Instance = this;
+        
+        GetNodeReferences();
+        SetupTrackLanes();
+        ConnectSignals();
+        LoadCurrentSong();
+        CreateHitSound();
+        
+        // Start game after delay
+        GetTree().CreateTimer(1.5).Timeout += BeginPlayback;
+    }
+    
+    private void GetNodeReferences()
+    {
         _notesContainer = GetNode<Node2D>("TrackContainer/NotesContainer");
+        _trackContainer = GetNode<Control>("TrackContainer");
         _scoreValueLabel = GetNode<Label>("ScoreContainer/ScoreValue");
         _comboValueLabel = GetNode<Label>("ComboContainer/ComboValue");
         _judgmentLabel = GetNode<Label>("JudgmentLabel");
         _songNameLabel = GetNode<Label>("TopBar/SongName");
+        _difficultyLabel = GetNode<Label>("TopBar/Difficulty");
         _progressBar = GetNode<ProgressBar>("ProgressBar");
         _pauseButton = GetNode<Button>("PauseButton");
         _pauseMenu = GetNode<PanelContainer>("PauseMenu");
         
-        // Connect signals
-        if (_pauseButton != null)
-            _pauseButton.Pressed += OnPausePressed;
+        // Hide judgment label initially
+        if (_judgmentLabel != null)
+        {
+            _judgmentLabel.Visible = false;
+        }
         
-        // Connect pause menu buttons
+        // Hide pause menu
+        if (_pauseMenu != null)
+        {
+            _pauseMenu.Visible = false;
+        }
+    }
+    
+    private void SetupTrackLanes()
+    {
+        int trackCount = _currentChart?.TrackCount ?? 4;
+        _trackLanes = new Control[trackCount];
+        
+        float trackWidth = _trackContainer?.Size.X ?? 720f;
+        float laneWidth = trackWidth / trackCount;
+        
+        // Create lane visuals if not existing
+        for (int i = 0; i < trackCount; i++)
+        {
+            string lanePath = $"TrackContainer/Lane{i}";
+            var lane = GetNode<Control>(lanePath);
+            
+            if (lane == null)
+            {
+                // Create lane dynamically
+                var colorRect = new ColorRect();
+                colorRect.Name = $"Lane{i}";
+                colorRect.Size = new Vector2(laneWidth, 800f);
+                colorRect.Position = new Vector2(i * laneWidth, 0);
+                colorRect.Color = new Color(TrackManager.Instance?.GetTrackColor(i) ?? Colors.Cyan, 0.1f);
+                _trackContainer?.AddChild(colorRect);
+                lane = colorRect;
+            }
+            
+            _trackLanes[i] = lane;
+        }
+        
+        // TrackManager uses TrackCount property
+    }
+    
+    private void ConnectSignals()
+    {
+        // Pause button
+        if (_pauseButton != null)
+        {
+            _pauseButton.Pressed += OnPausePressed;
+        }
+        
+        // Pause menu buttons
         var resumeButton = GetNode<Button>("PauseMenu/PauseVBox/ResumeButton");
         var restartButton = GetNode<Button>("PauseMenu/PauseVBox/RestartButton");
         var quitButton = GetNode<Button>("PauseMenu/PauseVBox/QuitButton");
@@ -61,19 +149,26 @@ public partial class GameplayUI : Control
         if (quitButton != null)
             quitButton.Pressed += OnQuitPressed;
         
-        // Create note scene
-        CreateNoteScene();
+        // Subscribe to score events
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.OnJudgment += OnJudgment;
+            ScoreManager.Instance.OnScoreChanged += OnScoreChanged;
+            ScoreManager.Instance.OnComboChanged += OnComboChanged;
+        }
         
-        LoadCurrentSong();
-        StartGame();
+        // Subscribe to audio events
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.OnSongEnd += OnSongEnd;
+        }
     }
     
-    private void CreateNoteScene()
+    private void CreateHitSound()
     {
-        // Create a simple note scene programmatically
-        var note = new NoteObject();
-        _noteScene = new PackedScene();
-        // In real implementation, would load from file
+        // Create a simple hit sound programmatically
+        // In production, this would be loaded from resources
+        // _hitSound = GD.Load<AudioStream>("res://assets/sounds/hit.wav");
     }
     
     private void LoadCurrentSong()
@@ -85,11 +180,16 @@ public partial class GameplayUI : Control
         if (_currentSong == null || _currentChart == null)
         {
             GD.PrintErr("No song or chart loaded!");
+            ReturnToMenu();
             return;
         }
         
         // Queue notes
-        foreach (var note in _currentChart.Notes)
+        var sortedNotes = new List<NoteData>(_currentChart.Notes);
+        sortedNotes.Sort((a, b) => a.Time.CompareTo(b.Time));
+        
+        _noteQueue.Clear();
+        foreach (var note in sortedNotes)
         {
             _noteQueue.Enqueue(note);
         }
@@ -98,54 +198,56 @@ public partial class GameplayUI : Control
         if (_songNameLabel != null)
             _songNameLabel.Text = _currentSong.Name;
         
+        if (_difficultyLabel != null)
+        {
+            _difficultyLabel.Text = GameManager.DifficultyNames[(int)_difficulty];
+            _difficultyLabel.Modulate = GameManager.DifficultyColors[(int)_difficulty];
+        }
+        
         // Initialize score manager
         ScoreManager.Instance?.Initialize(_currentChart.TotalNotes);
         
-        // Subscribe to events
-        if (ScoreManager.Instance != null)
+        // Load audio
+        if (!string.IsNullOrEmpty(_currentSong.AudioPath))
         {
-            ScoreManager.Instance.OnJudgment += OnJudgment;
-            ScoreManager.Instance.OnScoreChanged += OnScoreChanged;
-            ScoreManager.Instance.OnComboChanged += OnComboChanged;
+            AudioManager.Instance?.LoadSongFromPath(_currentSong.AudioPath, _currentChart.Bpm, _currentChart.Offset);
         }
         
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.OnSongEnd += OnSongEnd;
-        }
+        // Apply note speed from settings
+        _noteSpeed = GameManager.Instance?.NoteSpeed * 400f ?? 400f;
     }
     
-    private void StartGame()
+    private void BeginPlayback()
     {
-        // Start audio after delay
-        GetTree().CreateTimer(1.5).Timeout += () =>
-        {
-            AudioManager.Instance?.Play();
-        };
+        _gameStarted = true;
+        _isPlaying = true;
+        _isPaused = false;
+        
+        AudioManager.Instance?.Play();
     }
     
     public override void _Process(double delta)
     {
-        if (AudioManager.Instance == null || !AudioManager.Instance.IsPlaying)
-            return;
+        if (!_gameStarted) return;
         
-        _currentTime = AudioManager.Instance.CurrentTime;
+        if (!_isPlaying || _isPaused) return;
         
-        // Spawn notes
+        _currentTime = AudioManager.Instance?.CurrentTime ?? 0;
+        
+        // Spawn new notes
         SpawnNotes();
         
         // Update active notes
-        UpdateNotes((float)delta);
+        UpdateNotes(delta);
+        
+        // Check for missed notes
+        CheckMissedNotes();
         
         // Update progress bar
-        if (_progressBar != null && AudioManager.Instance != null)
-        {
-            double duration = AudioManager.Instance.SongDuration;
-            if (duration > 0)
-            {
-                _progressBar.Value = (_currentTime / duration) * 100;
-            }
-        }
+        UpdateProgress();
+        
+        // Update hold notes in TrackManager
+        TrackManager.Instance?.UpdateHoldNotes();
     }
     
     private void SpawnNotes()
@@ -154,11 +256,12 @@ public partial class GameplayUI : Control
         
         while (_noteQueue.Count > 0)
         {
-            var note = _noteQueue.Peek();
-            if (note.Time <= spawnTime)
+            var noteData = _noteQueue.Peek();
+            
+            if (noteData.Time <= spawnTime)
             {
                 _noteQueue.Dequeue();
-                SpawnNote(note);
+                SpawnNote(noteData);
             }
             else
             {
@@ -169,183 +272,313 @@ public partial class GameplayUI : Control
     
     private void SpawnNote(NoteData noteData)
     {
-        // Create note visual
-        var note = new NoteObject
-        {
-            Data = noteData,
-            TrackWidth = 180f
-        };
+        var note = new NoteObject();
+        note.Data = noteData;
+        note.TrackWidth = _trackContainer?.Size.X / (_currentChart?.TrackCount ?? 4) ?? 180f;
+        note.SetSpeed(_noteSpeed);
+        note.Initialize(noteData, _hitLineY, _despawnY);
+        note.SetSpawnPosition(_spawnY);
         
-        // Position note
-        float x = noteData.Track * 180f + 90f; // Center of track
-        float y = -(float)(noteData.Time - _currentTime) * _noteSpeed;
+        // Calculate initial position
+        float x = CalculateTrackX(noteData.Track);
+        double timeDiff = noteData.Time - _currentTime;
+        float y = _hitLineY - (float)(timeDiff * _noteSpeed);
         
         note.Position = new Vector2(x, y);
-        
-        // Set color based on type
-        var color = noteData.Type switch
-        {
-            NoteType.Hold => new Color(1f, 0.8f, 0.2f),
-            NoteType.Swipe => new Color(0.8f, 0.4f, 1f),
-            _ => new Color(0.4f, 1f, 1f)
-        };
-        note.Color = color;
         
         _notesContainer?.AddChild(note);
         _activeNotes.Add(note);
     }
     
-    private void UpdateNotes(float delta)
+    private float CalculateTrackX(int track)
     {
-        var notesToRemove = new List<NoteObject>();
+        float trackWidth = _trackContainer?.Size.X ?? 720f;
+        int trackCount = _currentChart?.TrackCount ?? 4;
+        float laneWidth = trackWidth / trackCount;
+        
+        return track * laneWidth + laneWidth / 2;
+    }
+    
+    private void UpdateNotes(double delta)
+    {
+        foreach (var note in _activeNotes)
+        {
+            if (note == null || note.WasHit || note.WasMissed) continue;
+            
+            note.UpdatePosition(_currentTime);
+        }
+    }
+    
+    private void CheckMissedNotes()
+    {
+        double missTime = _currentTime - _goodWindow;
+        
+        var missedNotes = new List<NoteObject>();
         
         foreach (var note in _activeNotes)
         {
-            // Update position
-            float y = -(float)(note.Data.Time - _currentTime) * _noteSpeed;
-            note.Position = new Vector2(note.Position.X, y);
+            if (note == null || note.WasHit || note.WasMissed) continue;
             
-            // Check if missed
-            if (note.Data.Time < _currentTime - 0.15)
+            if (note.Data.Time < missTime)
             {
+                missedNotes.Add(note);
+            }
+        }
+        
+        foreach (var note in missedNotes)
+        {
+            HandleMiss(note);
+        }
+    }
+    
+    private void UpdateProgress()
+    {
+        if (_progressBar == null) return;
+        
+        double duration = AudioManager.Instance?.SongDuration ?? 1;
+        if (duration > 0)
+        {
+            _progressBar.Value = (_currentTime / duration) * 100;
+        }
+    }
+    
+    #region Input Handling
+    
+    public void HandleTrackInput(int track)
+    {
+        if (!_isPlaying || _isPaused) return;
+        
+        // Find closest hittable note on this track
+        NoteObject closestNote = null;
+        double minTimeDiff = double.MaxValue;
+        
+        foreach (var note in _activeNotes)
+        {
+            if (note == null || note.WasHit || note.WasMissed) continue;
+            if (note.Data.Track != track) continue;
+            
+            double timeDiff = Math.Abs(note.Data.Time - _currentTime);
+            
+            if (timeDiff < minTimeDiff && timeDiff <= _goodWindow)
+            {
+                minTimeDiff = timeDiff;
+                closestNote = note;
+            }
+        }
+        
+        if (closestNote != null)
+        {
+            HitNote(closestNote);
+        }
+    }
+    
+    public void HandleHoldRelease(int track)
+    {
+        // Handle early release of hold note
+        var lane = TrackManager.Instance?.GetLane(track);
+        if (lane?.HoldNote != null)
+        {
+            var note = lane.HoldNote;
+            double currentTime = AudioManager.Instance?.CurrentTime ?? 0;
+            
+            // Check if held long enough
+            double holdProgress = (currentTime - note.Data.Time) / note.Data.Duration;
+            
+            if (holdProgress < 0.8)
+            {
+                // Early release - mark as miss
+                note.ReleaseHold();
                 ScoreManager.Instance?.ProcessMiss();
-                notesToRemove.Add(note);
+                RemoveNote(note);
             }
-        }
-        
-        // Remove missed notes
-        foreach (var note in notesToRemove)
-        {
-            _activeNotes.Remove(note);
-            note.QueueFree();
         }
     }
     
-    public override void _Input(InputEvent @event)
+    private void HitNote(NoteObject note)
     {
-        base._Input(@event);
+        if (note == null || note.WasHit) return;
         
-        // Handle track inputs
-        for (int i = 0; i < 4; i++)
+        var judgment = ScoreManager.Instance?.JudgeHit(_currentTime, note.Data.Time)
+            ?? ScoreManager.Judgment.Miss;
+        
+        // Play hit sound
+        if (_hitSound != null)
         {
-            if (Input.IsActionJustPressed($"tap_{i + 1}"))
-            {
-                HandleTrackInput(i);
-            }
+            AudioManager.Instance?.PlayHitSound(_hitSound);
         }
         
-        // Handle pause
-        if (Input.IsActionJustPressed("pause"))
+        // Handle hold notes
+        if (note.Data.Type == NoteType.Hold)
         {
-            if (_pauseMenu != null && _pauseMenu.Visible)
-                OnResumePressed();
-            else
-                OnPausePressed();
+            note.StartHold();
+            TrackManager.Instance?.SetHoldingNote(note.Data.Track, note);
+        }
+        else
+        {
+            note.MarkHit();
+            RemoveNote(note);
+        }
+        
+        // Show hit effect
+        TrackManager.Instance?.ShowHitEffect(note.Data.Track, judgment);
+    }
+    
+    private void HandleMiss(NoteObject note)
+    {
+        if (note == null || note.WasMissed) return;
+        
+        note.MarkMissed();
+        ScoreManager.Instance?.ProcessMiss();
+        
+        // Show miss effect
+        TrackManager.Instance?.ShowMissEffect(note.Data.Track);
+        
+        RemoveNote(note);
+    }
+    
+    private void RemoveNote(NoteObject note)
+    {
+        _activeNotes.Remove(note);
+        // Note will be freed by its animation
+    }
+    
+    #endregion
+    
+    #region Visual Effects
+    
+    public void ShowHitEffect(int track, ScoreManager.Judgment judgment, float x)
+    {
+        Vector2 position = new Vector2(x, _hitLineY);
+        EffectManager.Instance?.PlayHitEffect(judgment, position, _notesContainer);
+        
+        // Flash lane
+        if (_trackLanes != null && track < _trackLanes.Length)
+        {
+            EffectManager.Instance?.FlashLane(_trackLanes[track], judgment);
+        }
+        
+        // Combo effect
+        int combo = ScoreManager.Instance?.Combo ?? 0;
+        if (combo >= 50)
+        {
+            EffectManager.Instance?.PlayComboEffect(combo, position, _notesContainer);
         }
     }
     
-    private void HandleTrackInput(int track)
+    public void ShowMissEffect(int track, float x)
     {
-        // Find closest note on this track
-        NoteObject closest = null;
-        double minDiff = double.MaxValue;
+        Vector2 position = new Vector2(x, _hitLineY);
+        EffectManager.Instance?.PlayHitEffect(ScoreManager.Judgment.Miss, position, _notesContainer);
+    }
+    
+    public void HighlightTrack(int track, bool highlight, Color color)
+    {
+        if (_trackLanes == null || track >= _trackLanes.Length) return;
         
-        foreach (var note in _activeNotes)
+        var lane = _trackLanes[track];
+        if (lane == null) return;
+        
+        if (highlight)
         {
-            if (note.Data.Track == track && note.Data.Time > _currentTime - 0.2)
-            {
-                double diff = Math.Abs(note.Data.Time - _currentTime);
-                if (diff < minDiff)
-                {
-                    minDiff = diff;
-                    closest = note;
-                }
-            }
+            EffectManager.Instance?.GlowLane(lane, color, 0.3f);
         }
-        
-        if (closest != null && minDiff < 0.15)
+        else
         {
-            var judgment = ScoreManager.Instance?.JudgeHit(_currentTime, closest.Data.Time) 
-                ?? ScoreManager.Judgment.Miss;
-            
-            // Play hit sound
-            // AudioManager.Instance?.PlaySfx(hitSound);
-            
-            // Remove note
-            _activeNotes.Remove(closest);
-            closest.QueueFree();
+            EffectManager.Instance?.ResetLaneGlow(lane);
         }
     }
+    
+    #endregion
+    
+    #region Score Events
     
     private void OnJudgment(ScoreManager.Judgment judgment, int combo)
     {
-        if (_judgmentLabel != null)
+        if (_judgmentLabel == null) return;
+        
+        _judgmentLabel.Text = judgment.ToString().ToUpper();
+        _judgmentLabel.Modulate = EffectManager.Instance?.GetJudgmentColor(judgment) ?? Colors.White;
+        _judgmentLabel.Visible = true;
+        
+        // Scale animation
+        var tween = _judgmentLabel.CreateTween();
+        tween.TweenProperty(_judgmentLabel, "scale", new Vector2(1.3f, 1.3f), 0.05f);
+        tween.TweenProperty(_judgmentLabel, "scale", new Vector2(1f, 1f), 0.15f);
+        
+        // Hide after delay
+        GetTree().CreateTimer(0.5f).Timeout += () =>
         {
-            _judgmentLabel.Text = judgment.ToString().ToUpper();
-            
-            // Set color
-            _judgmentLabel.Modulate = judgment switch
-            {
-                ScoreManager.Judgment.Perfect => new Color(0.6f, 1f, 1f),
-                ScoreManager.Judgment.Great => new Color(1f, 0.9f, 0.3f),
-                ScoreManager.Judgment.Good => new Color(0.5f, 0.8f, 0.5f),
-                ScoreManager.Judgment.Miss => new Color(1f, 0.3f, 0.3f),
-                _ => new Color(1f, 1f, 1f)
-            };
-            
-            // Fade out after delay
-            GetTree().CreateTimer(0.5).Timeout += () =>
-            {
-                _judgmentLabel.Text = "";
-            };
-        }
+            _judgmentLabel.Visible = false;
+        };
     }
     
     private void OnScoreChanged(int score)
     {
         if (_scoreValueLabel != null)
+        {
             _scoreValueLabel.Text = score.ToString("N0");
+        }
     }
     
     private void OnComboChanged(int combo)
     {
-        if (_comboValueLabel != null)
-            _comboValueLabel.Text = combo > 0 ? combo.ToString() : "";
+        if (_comboValueLabel == null) return;
+        
+        _comboValueLabel.Text = combo > 0 ? combo.ToString() : "";
+        
+        if (combo >= 100)
+        {
+            // Big combo animation
+            var tween = _comboValueLabel.CreateTween();
+            tween.TweenProperty(_comboValueLabel, "scale", new Vector2(1.5f, 1.5f), 0.1f);
+            tween.TweenProperty(_comboValueLabel, "scale", new Vector2(1f, 1f), 0.2f);
+        }
     }
     
-    private void OnSongEnd()
+    #endregion
+    
+    #region Pause Control
+    
+    public override void _Input(InputEvent @event)
     {
-        // Save results
-        var result = ScoreManager.Instance?.GetResult();
-        if (result != null && _currentSong != null)
+        if (@event is InputEventKey keyEvent)
         {
-            var playerData = PlayerData.Load();
-            playerData.UpdateRecord(_currentSong.Id, result.Score, result.MaxCombo, result.Grade, _difficulty);
-            playerData.TotalPlayCount++;
-            playerData.Save();
-            
-            // Check achievements
-            AchievementManager.Instance?.OnSongClear(_currentSong.Id, result, _difficulty);
+            if (keyEvent.IsActionPressed("pause") || keyEvent.Keycode == Key.Escape)
+            {
+                if (_isPaused)
+                    OnResumePressed();
+                else
+                    OnPausePressed();
+            }
         }
-        
-        // Go to results
-        GameManager.Instance?.ChangeState(GameManager.GameState.Results);
     }
     
     private void OnPausePressed()
     {
+        if (!_isPlaying) return;
+        
+        _isPaused = true;
         AudioManager.Instance?.Pause();
+        
         if (_pauseMenu != null)
+        {
             _pauseMenu.Visible = true;
+        }
+        
         GetTree().Paused = true;
     }
     
     private void OnResumePressed()
     {
-        GetTree().Paused = false;
-        if (_pauseMenu != null)
-            _pauseMenu.Visible = false;
+        _isPaused = false;
         AudioManager.Instance?.Resume();
+        
+        if (_pauseMenu != null)
+        {
+            _pauseMenu.Visible = false;
+        }
+        
+        GetTree().Paused = false;
     }
     
     private void OnRestartPressed()
@@ -357,6 +590,73 @@ public partial class GameplayUI : Control
     private void OnQuitPressed()
     {
         GetTree().Paused = false;
+        GameManager.Instance?.ReturnToMainMenu();
+    }
+    
+    #endregion
+    
+    #region Song End
+    
+    private void OnSongEnd()
+    {
+        _isPlaying = false;
+        
+        // Get results
+        var result = ScoreManager.Instance?.GetResult();
+        
+        if (result != null && _currentSong != null)
+        {
+            // Save results
+            var playerData = PlayerData.Load();
+            playerData.UpdateRecord(_currentSong.Id, result.Score, result.MaxCombo, result.Grade, _difficulty);
+            playerData.TotalPlayCount++;
+            playerData.Save();
+            
+            // Check achievements
+            CheckAchievements(result);
+        }
+        
+        // Go to results scene
+        GameManager.Instance?.ChangeState(GameManager.GameState.Results);
+    }
+    
+    private void CheckAchievements(ScoreResult result)
+    {
+        if (AchievementManager.Instance == null) return;
+        
+        if (result.IsFullCombo)
+        {
+            AchievementManager.Instance.UnlockAchievement("first_full_combo");
+        }
+        
+        if (result.IsAllPerfect)
+        {
+            AchievementManager.Instance.UnlockAchievement("first_all_perfect");
+        }
+        
+        if (result.Grade == "S+" || result.Grade == "S")
+        {
+            AchievementManager.Instance.UnlockAchievement("first_s_rank");
+        }
+        
+        if (result.MaxCombo >= 100)
+        {
+            AchievementManager.Instance.UnlockAchievement("combo_100");
+        }
+        if (result.MaxCombo >= 500)
+        {
+            AchievementManager.Instance.UnlockAchievement("combo_500");
+        }
+        if (result.MaxCombo >= 1000)
+        {
+            AchievementManager.Instance.UnlockAchievement("combo_1000");
+        }
+    }
+    
+    #endregion
+    
+    private void ReturnToMenu()
+    {
         GameManager.Instance?.ReturnToMainMenu();
     }
     
@@ -374,40 +674,16 @@ public partial class GameplayUI : Control
         {
             AudioManager.Instance.OnSongEnd -= OnSongEnd;
         }
-    }
-}
-
-/// <summary>
-/// Visual representation of a note
-/// </summary>
-public partial class NoteObject : Node2D
-{
-    public NoteData Data { get; set; }
-    public float TrackWidth { get; set; } = 180f;
-    public Color Color { get; set; } = new Color(0.4f, 1f, 1f);
-    
-    public override void _Ready()
-    {
-        // Draw note shape
-    }
-    
-    public override void _Draw()
-    {
-        var size = Data?.Type switch
-        {
-            NoteType.Hold => new Vector2(TrackWidth - 20, 100),
-            NoteType.Swipe => new Vector2(TrackWidth - 20, 50),
-            _ => new Vector2(TrackWidth - 20, 30)
-        };
         
-        DrawRect(new Rect2(-size.X / 2, -size.Y / 2, size.X, size.Y), Color);
-        
-        // Draw hold tail
-        if (Data?.Type == NoteType.Hold)
+        // Clear notes
+        foreach (var note in _activeNotes)
         {
-            float holdLength = (float)(Data.Duration * 400);
-            DrawRect(new Rect2(-size.X / 2, size.Y / 2, size.X, holdLength), 
-                new Color(Color.R, Color.G, Color.B, 0.5f));
+            if (note != null && IsInstanceValid(note))
+            {
+                note.QueueFree();
+            }
         }
+        _activeNotes.Clear();
+        _noteQueue.Clear();
     }
 }

@@ -233,13 +233,3 @@ public partial class AchievementManager : Node
         UpdateProgress("chart_create_10", playerData.CreatedCharts.Count);
     }
 }
-
-public class AchievementDefinition
-{
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public int Target { get; set; }
-    public bool IsHidden { get; set; }
-    public string Reward { get; set; }
-}
