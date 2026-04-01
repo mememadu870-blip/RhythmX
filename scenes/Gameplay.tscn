@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://gameplay_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/GameplayUI.cs" id="1_game"]
+[ext_resource type="Script" path="res://scripts/ui/GameplayUI.gd" id="1_game"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="Gameplay" type="Control"]
@@ -225,7 +225,7 @@ custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 text = "Quit"
 
-[connection signal="pressed" from="PauseButton" to="." method="OnPausePressed"]
-[connection signal="pressed" from="PauseMenu/PauseVBox/ResumeButton" to="." method="OnResumePressed"]
-[connection signal="pressed" from="PauseMenu/PauseVBox/RestartButton" to="." method="OnRestartPressed"]
-[connection signal="pressed" from="PauseMenu/PauseVBox/QuitButton" to="." method="OnQuitPressed"]
+[connection signal="pressed" from="PauseButton" to="." method="on_pause_pressed"]
+[connection signal="pressed" from="PauseMenu/PauseVBox/ResumeButton" to="." method="on_resume_pressed"]
+[connection signal="pressed" from="PauseMenu/PauseVBox/RestartButton" to="." method="on_restart_pressed"]
+[connection signal="pressed" from="PauseMenu/PauseVBox/QuitButton" to="." method="on_quit_pressed"]

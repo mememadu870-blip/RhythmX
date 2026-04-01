@@ -8,28 +8,34 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="RhythmX"
 config/description="Universal Rhythm Game - Play any song!"
 run/main_scene="res://scenes/MainMenu.tscn"
-config/features=PackedStringArray("4.2", "C#", "Mobile")
+config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameManager="*res://scripts/autoload/GameManager.cs"
-AudioManager="*res://scripts/autoload/AudioManager.cs"
-ScoreManager="*res://scripts/autoload/ScoreManager.cs"
-AchievementManager="*res://scripts/autoload/AchievementManager.cs"
-CloudManager="*res://scripts/autoload/CloudManager.cs"
-SongLibrary="*res://scripts/autoload/SongLibrary.cs"
-EffectManager="*res://scripts/autoload/EffectManager.cs"
-StatisticsManager="*res://scripts/autoload/StatisticsManager.cs"
-MockAPIManager="*res://scripts/api/MockAPIManager.cs"
-ImportSongUI="*res://scripts/ui/ImportSongUI.cs"
-AudioAnalysis="*res://scripts/audio/AudioAnalysis.cs"
-ChartGenerator="*res://scripts/audio/ChartGenerator.cs"
+GameManager="*res://scripts/autoload/GameManager.gd"
+AudioManager="*res://scripts/autoload/AudioManager.gd"
+ScoreManager="*res://scripts/autoload/ScoreManager.gd"
+AchievementManager="*res://scripts/autoload/AchievementManager.gd"
+CloudManager="*res://scripts/autoload/CloudManager.gd"
+SongLibrary="*res://scripts/autoload/SongLibrary.gd"
+EffectManager="*res://scripts/autoload/EffectManager.gd"
+StatisticsManager="*res://scripts/autoload/StatisticsManager.gd"
+MockAPIManager="*res://scripts/api/APIManager.gd"
+ImportSongUI="*res://scripts/autoload/ImportSongUI.gd"
+AudioAnalysis="*res://scripts/audio/AudioAnalysis.gd"
+ChartGenerator="*res://scripts/audio/ChartGenerator.gd"
+InputManager="*res://scripts/gameplay/InputManager.gd"
+TrackManager="*res://scripts/gameplay/TrackManager.gd"
 
 [display]
 
@@ -38,10 +44,6 @@ window/size/viewport_height=1280
 window/size/mode=2
 window/stretch/mode="canvas_items"
 window/handheld/orientation=1
-
-[dotnet]
-
-project/assembly_name="RhythmX"
 
 [gui]
 

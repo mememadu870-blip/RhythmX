@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://settings_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/SettingsUI.cs" id="1_settings"]
+[ext_resource type="Script" path="res://scripts/ui/SettingsUI.gd" id="1_settings"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="Settings" type="Control"]
@@ -177,4 +177,4 @@ text = "Logout"
 layout_mode = 2
 text = "Reset to Defaults"
 
-[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]
+[connection signal="pressed" from="Header/BackButton" to="." method="on_back_pressed"]

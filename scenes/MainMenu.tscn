@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://main_menu_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/MainMenuUI.cs" id="1_main"]
+[ext_resource type="Script" path="res://scripts/ui/MainMenuUI.gd" id="1_main"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="MainMenu" type="Control"]
@@ -164,8 +164,8 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "0 achievements unlocked"
 
-[connection signal="pressed" from="CenterContainer/ButtonContainer/PlayButton" to="." method="OnPlayPressed"]
-[connection signal="pressed" from="CenterContainer/ButtonContainer/ImportButton" to="." method="OnImportPressed"]
-[connection signal="pressed" from="CenterContainer/ButtonContainer/EditorButton" to="." method="OnEditorPressed"]
-[connection signal="pressed" from="CenterContainer/ButtonContainer/AchievementsButton" to="." method="OnAchievementsPressed"]
-[connection signal="pressed" from="CenterContainer/ButtonContainer/SettingsButton" to="." method="OnSettingsPressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/PlayButton" to="." method="on_play_pressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/ImportButton" to="." method="on_import_pressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/EditorButton" to="." method="on_editor_pressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/AchievementsButton" to="." method="on_achievements_pressed"]
+[connection signal="pressed" from="CenterContainer/ButtonContainer/SettingsButton" to="." method="on_settings_pressed"]

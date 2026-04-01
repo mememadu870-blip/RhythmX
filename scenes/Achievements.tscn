@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://achievements_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/AchievementsUI.cs" id="1_achievements"]
+[ext_resource type="Script" path="res://scripts/ui/AchievementsUI.gd" id="1_achievements"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="Achievements" type="Control"]
@@ -107,4 +107,4 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
-[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]
+[connection signal="pressed" from="Header/BackButton" to="." method="on_back_pressed"]

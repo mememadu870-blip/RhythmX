@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://results_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/ResultsUI.cs" id="1_results"]
+[ext_resource type="Script" path="res://scripts/ui/ResultsUI.gd" id="1_results"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="Results" type="Control"]
@@ -198,5 +198,5 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.6, 0.7, 1)
 text = "Synthwave Masters"
 
-[connection signal="pressed" from="VBoxContainer/ButtonContainer/RetryButton" to="." method="OnRetryPressed"]
-[connection signal="pressed" from="VBoxContainer/ButtonContainer/BackButton" to="." method="OnBackPressed"]
+[connection signal="pressed" from="VBoxContainer/ButtonContainer/RetryButton" to="." method="on_retry_pressed"]
+[connection signal="pressed" from="VBoxContainer/ButtonContainer/BackButton" to="." method="on_back_pressed"]

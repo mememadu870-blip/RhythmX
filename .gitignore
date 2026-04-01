@@ -1,21 +1,15 @@
 # Godot 4.x specific ignores
 .godot/
-.mono/
 *.import
 
 # Build outputs
 bin/
 obj/
-*.dll
-*.pdb
-*.exe
 
 # IDE
 .vs/
 .vscode/
-*.csproj.user
 *.sln
-*.userprefs
 
 # OS
 .DS_Store

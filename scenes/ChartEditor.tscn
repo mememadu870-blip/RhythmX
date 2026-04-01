@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://chart_editor_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/ChartEditorUI.cs" id="1_editor"]
+[ext_resource type="Script" path="res://scripts/ui/ChartEditorUI.gd" id="1_editor"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="ChartEditor" type="Control"]
@@ -210,11 +210,11 @@ custom_minimum_size = Vector2(100, 60)
 layout_mode = 2
 text = "Export"
 
-[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]
-[connection signal="pressed" from="ToolContainer/ToolVBox/UndoButton" to="." method="OnUndoPressed"]
-[connection signal="pressed" from="ToolContainer/ToolVBox/RedoButton" to="." method="OnRedoPressed"]
-[connection signal="pressed" from="ToolContainer/ToolVBox/ClearButton" to="." method="OnClearPressed"]
-[connection signal="pressed" from="BottomBar/PlayButton" to="." method="OnPlayPressed"]
-[connection signal="pressed" from="BottomBar/StopButton" to="." method="OnStopPressed"]
-[connection signal="pressed" from="BottomBar/SaveButton" to="." method="OnSavePressed"]
-[connection signal="pressed" from="BottomBar/ExportButton" to="." method="OnExportPressed"]
+[connection signal="pressed" from="Header/BackButton" to="." method="on_back_pressed"]
+[connection signal="pressed" from="ToolContainer/ToolVBox/UndoButton" to="." method="on_undo_pressed"]
+[connection signal="pressed" from="ToolContainer/ToolVBox/RedoButton" to="." method="on_redo_pressed"]
+[connection signal="pressed" from="ToolContainer/ToolVBox/ClearButton" to="." method="on_clear_pressed"]
+[connection signal="pressed" from="BottomBar/PlayButton" to="." method="on_play_pressed"]
+[connection signal="pressed" from="BottomBar/StopButton" to="." method="on_stop_pressed"]
+[connection signal="pressed" from="BottomBar/SaveButton" to="." method="on_save_pressed"]
+[connection signal="pressed" from="BottomBar/ExportButton" to="." method="on_export_pressed"]

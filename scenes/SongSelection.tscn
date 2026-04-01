@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://song_selection_scene"]
 
-[ext_resource type="Script" path="res://scripts/ui/SongSelectionUI.cs" id="1_song"]
+[ext_resource type="Script" path="res://scripts/ui/SongSelectionUI.gd" id="1_song"]
 [ext_resource type="Theme" path="res://resources/theme/MainTheme.tres" id="2_theme"]
 
 [node name="SongSelection" type="Control"]
@@ -195,10 +195,10 @@ custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 text = "🏆"
 
-[connection signal="pressed" from="Header/BackButton" to="." method="OnBackPressed"]
-[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/EasyButton" to="." method="OnDifficultySelected" binds= [0]]
-[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/NormalButton" to="." method="OnDifficultySelected" binds= [1]]
-[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/HardButton" to="." method="OnDifficultySelected" binds= [2]]
-[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/ExpertButton" to="." method="OnDifficultySelected" binds= [3]]
-[connection signal="pressed" from="BottomBar/ImportButton" to="." method="OnImportPressed"]
-[connection signal="pressed" from="BottomBar/PlayButton" to="." method="OnPlayPressed"]
+[connection signal="pressed" from="Header/BackButton" to="." method="on_back_pressed"]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/EasyButton" to="." method="on_difficulty_selected" binds= [0]]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/NormalButton" to="." method="on_difficulty_selected" binds= [1]]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/HardButton" to="." method="on_difficulty_selected" binds= [2]]
+[connection signal="pressed" from="MainContainer/DetailContainer/DetailVBox/DifficultyContainer/DifficultyButtons/ExpertButton" to="." method="on_difficulty_selected" binds= [3]]
+[connection signal="pressed" from="BottomBar/ImportButton" to="." method="on_import_pressed"]
+[connection signal="pressed" from="BottomBar/PlayButton" to="." method="on_play_pressed"]
