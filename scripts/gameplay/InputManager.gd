@@ -4,6 +4,8 @@ extends Node
 ## 处理节奏游戏的键盘和触摸输入
 ## 单例 autoload
 
+const GameData = preload("res://scripts/data/GameData.gd")
+
 signal on_track_pressed(track: int)
 signal on_track_released(track: int)
 
@@ -145,11 +147,11 @@ func is_track_pressed(track: int) -> bool:
 
 
 ## 检测滑动手势方向
-func detect_swipe(start_pos: Vector2, end_pos: Vector2, min_distance: float = 50.0) -> SwipeDirection:
+func detect_swipe(start_pos: Vector2, end_pos: Vector2, min_distance: float = 50.0) -> GameData.SwipeDirection:
     var delta = end_pos - start_pos
 
     if delta.length() < min_distance:
-        return SwipeDirection.NONE
+        return GameData.SwipeDirection.NONE
 
     var angle = atan2(delta.y, delta.x) * 57.29578  # RAD_TO_DEG = 180/PI
 
@@ -157,13 +159,13 @@ func detect_swipe(start_pos: Vector2, end_pos: Vector2, min_distance: float = 50
     angle = -angle
 
     if angle >= -45.0 and angle < 45.0:
-        return SwipeDirection.RIGHT
+        return GameData.SwipeDirection.RIGHT
     elif angle >= 45.0 and angle < 135.0:
-        return SwipeDirection.UP
+        return GameData.SwipeDirection.UP
     elif angle >= -135.0 and angle < -45.0:
-        return SwipeDirection.DOWN
+        return GameData.SwipeDirection.DOWN
     else:
-        return SwipeDirection.LEFT
+        return GameData.SwipeDirection.LEFT
 
 
 ## 获取当前轨道状态数组

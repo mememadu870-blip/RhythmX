@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://big_combo_effect"]
+
+[node name="BigComboEffect" type="GPUParticles2D"]
+amount = 50
+lifetime = 1.0
+explosiveness = 0.9
+one_shot = true
+emitting = true

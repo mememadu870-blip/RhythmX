@@ -4,6 +4,18 @@ extends Node
 ## 游戏管理器 - 处理游戏状态和场景转换
 ## 单例 autoload
 
+# 引用 GameTypes 避免循环依赖
+const GameTypes = preload("res://scripts/game/GameTypes.gd")
+const GameData = preload("res://scripts/data/GameData.gd")
+
+# 使用 GameTypes 的枚举
+enum Difficulty {
+	EASY = 0,
+	NORMAL = 1,
+	HARD = 2,
+	EXPERT = 3
+}
+
 enum GameState {
 	MAIN_MENU,
 	SONG_SELECTION,
@@ -15,32 +27,18 @@ enum GameState {
 	ACHIEVEMENTS
 }
 
-enum Difficulty {
-	EASY,
-	NORMAL,
-	HARD,
-	EXPERT
-}
-
 # 难度密度倍率
 static var DIFFICULTY_DENSITY_MULTIPLIERS: Array[float] = [0.4, 0.7, 1.0, 1.3]
 # 难度名称
 static var DIFFICULTY_NAMES: Array[String] = ["Easy", "Normal", "Hard", "Expert"]
 # 难度颜色
-static var DIFFICULTY_COLORS: Array[Color] = [
-	Color(0.5, 1.0, 0.5),   # Easy - 绿色
-	Color(1.0, 1.0, 0.5),   # Normal - 黄色
-	Color(1.0, 0.5, 0.5),   # Hard - 红色
-	Color(0.8, 0.3, 1.0)    # Expert - 紫色
-]
-
-const GameData = preload("res://scripts/data/GameData.gd")
+static var DIFFICULTY_COLORS: Array[Color] = [Color("#4CAF50"), Color("#2196F3"), Color("#F44336"), Color("#9C27B0")]
 
 # 当前游戏状态
 var current_state: GameState = GameState.MAIN_MENU
 var current_song: GameData.SongData
 var current_chart: GameData.ChartData
-var current_difficulty: Difficulty = Difficulty.NORMAL
+var current_difficulty: int = GameTypes.Difficulty.NORMAL
 
 var audio_offset: float = 0.0
 var note_speed: float = 1.0
@@ -98,7 +96,7 @@ func change_state(new_state: GameState) -> void:
 			get_tree().change_scene_to_file("res://scenes/ChartEditor.tscn")
 
 
-func start_game(song: GameData.SongData, chart: GameData.ChartData, difficulty: Difficulty) -> void:
+func start_game(song: GameData.SongData, chart: GameData.ChartData, difficulty: int) -> void:
 	current_song = song
 	current_chart = chart
 	current_difficulty = difficulty

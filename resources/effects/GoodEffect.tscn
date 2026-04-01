@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://good_effect"]
+
+[node name="GoodEffect" type="GPUParticles2D"]
+amount = 20
+lifetime = 0.3
+explosiveness = 0.6
+one_shot = true
+emitting = true

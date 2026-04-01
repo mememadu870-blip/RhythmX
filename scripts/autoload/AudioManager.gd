@@ -46,14 +46,14 @@ func _ready() -> void:
     instance = self
 
     # 创建音频播放器
-    _music_player = AudioStreamPlayer()
-    _sfx_player = AudioStreamPlayer()
+    _music_player = AudioStreamPlayer.new()
+    _sfx_player = AudioStreamPlayer.new()
     add_child(_music_player)
     add_child(_sfx_player)
 
     # 创建 hit 声音池
     for i in HIT_SOUND_POOL_SIZE:
-        var player = AudioStreamPlayer()
+        var player = AudioStreamPlayer.new()
         player.volume_db = 0.0
         add_child(player)
         _hit_sound_pool.append(player)
@@ -87,9 +87,7 @@ func load_song(stream: AudioStream, song_bpm: float, start_offset: float = 0.0) 
     _start_offset = start_offset
 
     # 获取时长
-    if stream is AudioStreamWAV:
-        song_duration = stream.get_length()
-    elif stream is AudioStreamOGGVorbis:
+    if stream:
         song_duration = stream.get_length()
     else:
         song_duration = 0.0
@@ -109,9 +107,9 @@ func load_song_from_path(path: String, song_bpm: float, start_offset: float = 0.
 
     match extension:
         "wav":
-            stream = ResourceLoader.load(path) as AudioStreamWAV
+            stream = ResourceLoader.load(path) as AudioStream
         "ogg":
-            stream = ResourceLoader.load(path) as AudioStreamOGGVorbis
+            stream = ResourceLoader.load(path) as AudioStream
         _:
             push_error("Unsupported audio format: " + extension)
             return
@@ -256,9 +254,9 @@ func play_sfx_from_path(path: String) -> void:
 
     match extension:
         "wav":
-            stream = ResourceLoader.load(path) as AudioStreamWAV
+            stream = ResourceLoader.load(path) as AudioStream
         "ogg":
-            stream = ResourceLoader.load(path) as AudioStreamOGGVorbis
+            stream = ResourceLoader.load(path) as AudioStream
 
     if stream:
         play_sfx(stream)

@@ -169,11 +169,11 @@ func get_audio_duration(path: String) -> float:
     var extension = path.get_extension().to_lower()
 
     if extension == "wav":
-        var stream = ResourceLoader.load(path) as AudioStreamWAV
+        var stream = ResourceLoader.load(path) as AudioStream
         if stream:
             return stream.get_length()
     elif extension == "ogg":
-        var stream = ResourceLoader.load(path) as AudioStreamOGGVorbis
+        var stream = ResourceLoader.load(path) as AudioStream
         if stream:
             return stream.get_length()
 

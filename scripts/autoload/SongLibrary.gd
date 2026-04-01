@@ -87,7 +87,7 @@ func generate_mock_chart(song: GameData.SongData, difficulty: int) -> GameData.C
     chart.offset = 0.0
 
     # 根据难度生成音符
-    var density = GameManagerClass.DIFFICULTY_DENSITY_MULTIPLIERS[difficulty]
+    var density = GameData.DIFFICULTY_DENSITY_MULTIPLIERS[difficulty]
     var note_count = int(density * 100.0 * (song.duration / 180.0))
     var interval = song.duration / note_count
 
@@ -101,10 +101,10 @@ func generate_mock_chart(song: GameData.SongData, difficulty: int) -> GameData.C
         note.type = GameData.NoteType.TAP
 
         # 添加一些变化
-        if difficulty >= GameManagerClass.Difficulty.HARD and rng.randf() < 0.15:
+        if difficulty >= GameData.Difficulty.HARD and rng.randf() < 0.15:
             note.type = GameData.NoteType.HOLD
             note.end_time = note.time + rng.randf_range(0.5, 1.5)
-        elif difficulty == GameManagerClass.Difficulty.EXPERT and rng.randf() < 0.1:
+        elif difficulty == GameData.Difficulty.EXPERT and rng.randf() < 0.1:
             note.type = GameData.NoteType.SWIPE
             note.swipe_direction = rng.randi_range(1, 4)
 
@@ -118,13 +118,10 @@ func load_song_from_json(path: String) -> GameData.SongData:
     if file == null:
         return null
 
-    try:
-        var json = file.get_as_text()
-        var data = JSON.parse_string(json)
-        if data:
-            return GameData.SongData.from_dict(data)
-    except:
-        pass
+    var json = file.get_as_text()
+    var data = JSON.parse_string(json)
+    if data:
+        return GameData.SongData.from_dict(data)
 
     return null
 

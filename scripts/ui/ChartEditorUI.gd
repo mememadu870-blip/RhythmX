@@ -4,6 +4,7 @@ extends Control
 ## 谱面编辑器 UI 控制器
 
 const GameData = preload("res://scripts/data/GameData.gd")
+const GameManagerClass = preload("res://scripts/autoload/GameManager.gd")
 
 # 节点引用
 var _song_name_label: Label
@@ -462,11 +463,11 @@ func load_audio_async(path: String) -> void:
     # 获取时长
     var ext = path.get_extension().to_lower()
     if ext == "wav":
-        var stream = ResourceLoader.load(path) as AudioStreamWAV
+        var stream = ResourceLoader.load(path) as AudioStream
         if stream:
             _duration = stream.get_length()
     elif ext == "ogg":
-        var stream = ResourceLoader.load(path) as AudioStreamOGGVorbis
+        var stream = ResourceLoader.load(path) as AudioStream
         if stream:
             _duration = stream.get_length()
 

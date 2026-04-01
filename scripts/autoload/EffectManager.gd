@@ -4,6 +4,8 @@ extends Node
 ## 视觉效果管理器 - 粒子、轨迹等
 ## 单例 autoload 用于全局效果访问
 
+const ScoreManagerClass = preload("res://scripts/autoload/ScoreManager.gd")
+
 signal on_beat_pulse(beat: int)
 
 # 效果设置
@@ -95,7 +97,7 @@ func create_dynamic_hit_effect(judgment: ScoreManagerClass.Judgment, position: V
     var color = get_judgment_color(judgment)
 
     var material = ParticleProcessMaterial.new()
-    material.emission_shape = ParticleProcessMaterial.EmissionShape.POINT
+    material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
     material.direction = Vector3(0, -1, 0)
     material.spread = 45.0
     material.initial_velocity_min = 100.0
@@ -163,7 +165,7 @@ func create_combo_flash_effect(position: Vector2, parent: Node, color: Color, is
     particles.emitting = true
 
     var material = ParticleProcessMaterial.new()
-    material.emission_shape = ParticleProcessMaterial.EmissionShape.SPHERE
+    material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
     material.emission_sphere_radius = 50.0
     material.direction = Vector3(0, 0, 0)
     material.spread = 180.0

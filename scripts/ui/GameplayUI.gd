@@ -5,6 +5,7 @@ extends Control
 ## 单例 autoload
 
 const GameData = preload("res://scripts/data/GameData.gd")
+const GameManagerClass = preload("res://scripts/autoload/GameManager.gd")
 
 # Node 引用
 var _notes_container: Node2D

@@ -5,6 +5,7 @@ extends Node
 ## 提供与未来真实 API 对接的接口
 
 const GameData = preload("res://scripts/data/GameData.gd")
+const APIConfig = preload("res://scripts/api/APIConfig.gd")
 
 # 信号
 signal auth_changed(is_logged_in: bool)
@@ -95,22 +96,22 @@ func create_mock_chart(song: GameData.SongData, difficulty: int) -> GameData.Cha
     chart.offset = 0.1
 
     # 生成模拟音符
-    var density = GameManagerClass.DIFFICULTY_DENSITY_MULTIPLIERS[difficulty]
+    var density = GameData.DIFFICULTY_DENSITY_MULTIPLIERS[difficulty]
     var note_count = int(density * 100.0 * (song.duration / 180.0))
 
     for i in range(note_count):
         var note = GameData.NoteData.new()
         note.time = i * (song.duration / note_count)
         note.track = _rng.randi_range(0, 3)
-        note.type = GameData.GameData.NoteType.TAP
+        note.type = GameData.NoteType.TAP
 
         # 添加变化
-        if difficulty >= GameManagerClass.Difficulty.HARD and _rng.randf() < 0.15:
-            note.type = GameData.GameData.NoteType.HOLD
+        if difficulty >= GameData.Difficulty.HARD and _rng.randf() < 0.15:
+            note.type = GameData.NoteType.HOLD
             note.end_time = note.time + _rng.randf_range(0.3, 1.5)
 
-        if difficulty == GameManagerClass.Difficulty.EXPERT and _rng.randf() < 0.1:
-            note.type = GameData.NoteData.Swipe
+        if difficulty == GameData.Difficulty.EXPERT and _rng.randf() < 0.1:
+            note.type = GameData.NoteType.SWIPE
             note.swipe_direction = _rng.randi_range(1, 4)
 
         chart.notes.append(note)
@@ -119,7 +120,7 @@ func create_mock_chart(song: GameData.SongData, difficulty: int) -> GameData.Cha
 
 
 func create_mock_leaderboard(song_id: String, difficulty: int) -> Array[Dictionary]:
-    var entries = []
+    var entries: Array[Dictionary] = []
     var grades = ["S+", "S", "A", "A", "B", "B", "C", "D"]
 
     for i in range(1, 21):

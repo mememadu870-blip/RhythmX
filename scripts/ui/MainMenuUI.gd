@@ -4,6 +4,7 @@ extends Control
 ## 主菜单 UI 控制器
 
 const GameData = preload("res://scripts/data/GameData.gd")
+const GameManagerClass = preload("res://scripts/autoload/GameManager.gd")
 
 var _user_name_label: Label
 var _user_stats_label: Label

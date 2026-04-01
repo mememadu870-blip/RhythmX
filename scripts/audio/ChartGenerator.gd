@@ -51,7 +51,7 @@ func generate_chart(stream: AudioStreamWAV, bpm: float, difficulty: int) -> Game
         return chart
 
     # 转换为浮点采样
-    var samples = convert_to_float_samples(data, stream.format)
+    var samples = convert_to_float_samples(data)
     var mono_samples = convert_to_mono(samples, 2 if stream.stereo else 1)
 
     # 检测起始点
@@ -61,13 +61,13 @@ func generate_chart(stream: AudioStreamWAV, bpm: float, difficulty: int) -> Game
     var beat_interval = 60.0 / bpm
 
     # 根据难度密度过滤起始点
-    var density = GameManagerClass.DIFFICULTY_DENSITY_MULTIPLIERS[difficulty]
+    var density = GameData.DIFFICULTY_DENSITY_MULTIPLIERS[difficulty]
     var filtered_onsets = filter_onsets(onsets, beat_interval, density)
 
     # 转换为音符
     chart.notes = generate_notes(filtered_onsets, stream.mix_rate, difficulty)
 
-    print("Generated %d notes for %s difficulty" % [chart.notes.size(), GameManagerClass.DIFFICULTY_NAMES[difficulty]])
+    print("Generated %d notes for %s difficulty" % [chart.notes.size(), GameData.DIFFICULTY_NAMES[difficulty]])
 
     return chart
 
@@ -79,7 +79,7 @@ func generate_chart_from_file_async(path: String, difficulty: int, bpm: float) -
         return create_empty_chart(difficulty, bpm)
 
     if path.get_extension().to_lower() == "wav":
-        var stream = ResourceLoader.load(path) as AudioStreamWAV
+        var stream = ResourceLoader.load(path) as AudioStream
         if stream == null:
             push_error("Failed to load audio file: " + path)
             return create_empty_chart(difficulty, bpm)
@@ -101,19 +101,15 @@ func create_empty_chart(difficulty: int, bpm: float) -> GameData.ChartData:
     return chart
 
 
-func convert_to_float_samples(data: PackedByteArray, format: int) -> PackedFloat32Array:
-    var bytes_per_sample = 2 if format == AudioStreamWAV.FORMAT_16_BITS else 1
-    var sample_count = data.size() / bytes_per_sample
-
+func convert_to_float_samples(data: PackedByteArray) -> PackedFloat32Array:
+    # 简化的样本转换，假设 16 位格式
+    var sample_count = data.size() / 2
     var samples = PackedFloat32Array()
     samples.resize(sample_count)
 
     for i in range(sample_count):
-        if format == AudioStreamWAV.FORMAT_16_BITS:
-            var value = data[i * 2] | (data[i * 2 + 1] << 8)
-            samples[i] = value / 32768.0
-        else:
-            samples[i] = (data[i] - 128) / 128.0
+        var value = data[i * 2] | (data[i * 2 + 1] << 8)
+        samples[i] = value / 32768.0
 
     return samples
 
@@ -247,16 +243,16 @@ func determine_note_type(energy: float, difficulty: int) -> GameData.NoteType:
     var swipe_chance = 0.05
 
     match difficulty:
-        GameManagerClass.Difficulty.EASY:
+        GameData.Difficulty.EASY:
             hold_chance = 0.05
             swipe_chance = 0.0
-        GameManagerClass.Difficulty.NORMAL:
+        GameData.Difficulty.NORMAL:
             hold_chance = 0.1
             swipe_chance = 0.05
-        GameManagerClass.Difficulty.HARD:
+        GameData.Difficulty.HARD:
             hold_chance = 0.15
             swipe_chance = 0.1
-        GameManagerClass.Difficulty.EXPERT:
+        GameData.Difficulty.EXPERT:
             hold_chance = 0.2
             swipe_chance = 0.15
 

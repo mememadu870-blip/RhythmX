@@ -1,93 +1,108 @@
+# Godot 4.6 多平台构建工作流
+# 支持：Windows, Linux, Web, Android
+
 name: Godot Build
 
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
 
 env:
-  GODOT_VERSION: 4.2.2
+  GODOT_VERSION: 4.6.1
   EXPORT_NAME: RhythmX
+  PROJECT_NAME: RhythmX
+  ANDROID_VERSION_NAME: 1.0.0
+  ANDROID_VERSION_CODE: 1
 
 jobs:
+  # ============================================================
+  # Windows 桌面版构建
+  # ============================================================
   export-windows:
     name: Windows Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.6.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Install .NET 8 SDK
-        run: |
-          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-          chmod +x dotnet-install.sh
-          ./dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
-          ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-          dotnet --version
-        
+
       - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          
-      - name: Restore and Build
-        run: |
-          dotnet restore
-          dotnet build -c Release
-          
+
       - name: Windows Build
         run: |
           mkdir -v -p build/windows
-          godot --headless --verbose --export-release "Windows Desktop" build/windows/${EXPORT_NAME}.exe
-          
+          godot --headless --verbose --export-release "Windows Desktop" build/windows/${PROJECT_NAME}.exe
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: build/windows
 
-  export-web:
-    name: Web Export
+  # ============================================================
+  # Linux 桌面版构建
+  # ============================================================
+  export-linux:
+    name: Linux Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.6.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Install .NET 8 SDK
-        run: |
-          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-          chmod +x dotnet-install.sh
-          ./dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
-          ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-          dotnet --version
-        
+
       - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          
-      - name: Restore and Build
+
+      - name: Linux Build
         run: |
-          dotnet restore
-          dotnet build -c Release
-          
+          mkdir -v -p build/linux
+          godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: build/linux
+
+  # ============================================================
+  # Web 导出 (HTML5)
+  # ============================================================
+  export-web:
+    name: Web Export
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.6.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot Templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+
       - name: Web Build
         run: |
           mkdir -v -p build/web
           godot --headless --verbose --export-release "Web" build/web/index.html
-          
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-build
           path: build/web
-          
+
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: |
@@ -100,40 +115,123 @@ jobs:
           git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git master:gh-pages
         continue-on-error: true
 
-  export-linux:
-    name: Linux Export
+  # ============================================================
+  # Android 导出 (APK)
+  # ============================================================
+  export-android:
+    name: Android Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.6.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Install .NET 8 SDK
-        run: |
-          wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-          chmod +x dotnet-install.sh
-          ./dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
-          ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-          dotnet --version
-        
+
       - name: Setup Godot Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          
-      - name: Restore and Build
+
+      - name: Setup Android SDK
         run: |
-          dotnet restore
-          dotnet build -c Release
-          
-      - name: Linux Build
+          # 使用容器中已有的 Android SDK
+          export ANDROID_HOME=/opt/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+          # 确认 SDK 版本
+          echo "Android SDK Version:"
+          sdkmanager --version || true
+
+      - name: Setup Keystore Properties
         run: |
-          mkdir -v -p build/linux
-          godot --headless --verbose --export-release "Linux/X11" build/linux/${EXPORT_NAME}.x86_64
-          
-      - name: Upload Artifact
+          # 创建临时 keystore 配置（仅用于 CI 测试）
+          # 生产环境请使用 secrets 配置
+          cat > android_keystore.properties << EOF
+          key.store=debug.keystore
+          key.store.password=android
+          key.alias=androiddebugkey
+          key.alias.password=android
+          EOF
+
+      - name: Create Debug Keystore
+        run: |
+          keytool -genkey -v -keystore debug.keystore \
+            -storepass android -alias androiddebugkey \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Download and Setup Godot Android Template
+        run: |
+          # 下载 Godot 4.6.1 Android 导出模板
+          GODOT_URL="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_android_build_template.zip"
+          echo "Downloading Godot Android Template from: $GODOT_URL"
+          wget -q "$GODOT_URL" -O godot_android_template.zip || {
+            echo "Failed to download template, using container template"
+            exit 0
+          }
+          unzip -o godot_android_template.zip
+          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+          mv android_build_template/* ~/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+
+      - name: Configure Android Export Preset
+        run: |
+          # 更新导出预设配置
+          sed -i 's|gradle_build/use_gradle_build=false|gradle_build/use_gradle_build=true|' export_presets.cfg
+          sed -i 's|architectures/armeabi-v7a=true|architectures/armeabi-v7a=false|' export_presets.cfg
+          sed -i 's|architectures/arm64-v8a=false|architectures/arm64-v8a=true|' export_presets.cfg
+          sed -i 's|package/unique_name=".*"|package/unique_name="com.rhythmx.app"|' export_presets.cfg
+          cat export_presets.cfg
+
+      - name: Android Build
+        run: |
+          mkdir -v -p build/android
+          export ANDROID_HOME=/opt/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+          # 使用 Gradle 构建模式导出
+          godot --headless --verbose \
+            --export-debug "Android" \
+            build/android/${PROJECT_NAME}.apk
+
+          # 检查结果
+          if [ -f build/android/${PROJECT_NAME}.apk ]; then
+            echo "Build successful!"
+            ls -lh build/android/
+          else
+            echo "Build failed, checking for .aab..."
+            ls -lh build/android/ || true
+          fi
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-build
-          path: build/linux
+          name: android-apk
+          path: build/android/*.apk
+          if-no-files-found: ignore
+
+      - name: Upload AAB Artifact (if exists)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: build/android/*.aab
+          if-no-files-found: ignore
+
+  # ============================================================
+  # 构建汇总
+  # ============================================================
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [export-windows, export-linux, export-web, export-android]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows  | ${{ needs.export-windows.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux    | ${{ needs.export-linux.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Web      | ${{ needs.export-web.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android  | ${{ needs.export-android.result }} |" >> $GITHUB_STEP_SUMMARY

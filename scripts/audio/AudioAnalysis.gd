@@ -66,7 +66,7 @@ func analyze_bpm_from_file_async(path: String) -> float:
     var extension = path.get_extension().to_lower()
 
     if extension == "wav":
-        var stream = ResourceLoader.load(path) as AudioStreamWAV
+        var stream = ResourceLoader.load(path) as AudioStream
         if stream == null:
             push_error("Failed to load audio file: " + path)
             return 120.0
@@ -78,18 +78,14 @@ func analyze_bpm_from_file_async(path: String) -> float:
 
 
 func convert_to_float_samples(data: PackedByteArray, format: int) -> PackedFloat32Array:
-    var bytes_per_sample = 2 if format == AudioStreamWAV.FORMAT_16_BITS else 1
-    var sample_count = data.size() / bytes_per_sample
-
+    # 简化的样本转换，假设 16 位格式
+    var sample_count = data.size() / 2
     var samples = PackedFloat32Array()
     samples.resize(sample_count)
 
     for i in range(sample_count):
-        if format == AudioStreamWAV.FORMAT_16_BITS:
-            var value = data[i * 2] | (data[i * 2 + 1] << 8)
-            samples[i] = value / 32768.0
-        else:
-            samples[i] = (data[i] - 128) / 128.0
+        var value = data[i * 2] | (data[i * 2 + 1] << 8)
+        samples[i] = value / 32768.0
 
     return samples
 
@@ -188,8 +184,6 @@ func calculate_threshold(flux: Array[float]) -> float:
 
 ## 获取音频时长（秒）
 func get_duration(stream: AudioStream) -> float:
-    if stream is AudioStreamWAV:
-        return stream.get_length()
-    elif stream is AudioStreamOGGVorbis:
+    if stream:
         return stream.get_length()
     return 0.0

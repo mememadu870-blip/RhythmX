@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://perfect_effect"]
+
+[ext_resource type="GPUParticles2D" path="res://resources/effects/PerfectEffect.tscn" id="1"]
+
+[node name="PerfectEffect" type="GPUParticles2D"]
+amount = 30
+lifetime = 0.5
+explosiveness = 0.8
+one_shot = true
+emitting = true

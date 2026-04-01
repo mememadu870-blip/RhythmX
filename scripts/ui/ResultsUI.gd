@@ -4,6 +4,7 @@ extends Control
 ## 结算界面 UI 控制器
 
 const GameData = preload("res://scripts/data/GameData.gd")
+const GameManagerClass = preload("res://scripts/autoload/GameManager.gd")
 
 var _grade_label: Label
 var _score_value_label: Label

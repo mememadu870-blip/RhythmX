@@ -4,6 +4,8 @@ extends Node
 ## 管理轨道输入和视觉反馈
 ## 单例 autoload
 
+const ScoreManagerClass = preload("res://scripts/autoload/ScoreManager.gd")
+
 signal on_track_hit(track: int, judgment: ScoreManagerClass.Judgment)
 signal on_track_miss(track: int)
 

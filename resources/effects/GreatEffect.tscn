@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://great_effect"]
+
+[node name="GreatEffect" type="GPUParticles2D"]
+amount = 25
+lifetime = 0.4
+explosiveness = 0.7
+one_shot = true
+emitting = true

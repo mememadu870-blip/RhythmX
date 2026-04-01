@@ -4,6 +4,7 @@ extends Control
 ## 歌曲选择 UI 控制器
 
 const GameData = preload("res://scripts/data/GameData.gd")
+const GameManagerClass = preload("res://scripts/autoload/GameManager.gd")
 
 var _song_list_container: VBoxContainer
 var _song_name_label: Label
