@@ -278,15 +278,36 @@ jobs:
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
+          # Create keystore directory
+          mkdir -p ~/.android
+
+          # Install OpenJDK if keytool not available
           if ! command -v keytool &> /dev/null; then
             echo "Installing OpenJDK..."
-            apt-get update && apt-get install -y openjdk-11-jdk-headless
+            apt-get update -qq && apt-get install -y -qq openjdk-11-jdk-headless
           fi
 
-          keytool -genkey -v -keystore ~/.android/debug.keystore \
-            -storepass android -alias androiddebugkey \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          # Generate debug keystore
+          echo "Generating debug keystore..."
+          keytool -genkey -v \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug, O=Android, C=US" \
+            -noprompt 2>&1 || {
+            echo "keytool failed, trying with different options..."
+            keytool -genkeypair \
+              -keystore ~/.android/debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug, O=Android, C=US"
+          }
 
           echo "Keystore created:"
           ls -la ~/.android/debug.keystore
