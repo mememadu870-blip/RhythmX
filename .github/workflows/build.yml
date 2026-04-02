@@ -441,3 +441,9 @@ jobs:
           echo "| Linux    | ${{ needs.export-linux.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Web      | ${{ needs.export-web.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Android  | ${{ needs.export-android.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          # List artifacts
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "Download artifacts from the workflow run page:" >> $GITHUB_STEP_SUMMARY
+          echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
