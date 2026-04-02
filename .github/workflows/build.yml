@@ -95,23 +95,14 @@ jobs:
           fi
           echo "=== Export Templates Available ==="
           ls -la ~/.local/share/godot/export_templates/ || echo "No templates found"
-
-      - name: Download Linux Export Template
-        run: |
-          cd /tmp
-          echo "Downloading Godot ${GODOT_VERSION_FULL} Linux export template..."
-          curl -L -o linux_template.zip \
-            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION_FULL}-stable/Godot_v${GODOT_VERSION_FULL}-stable_linux_export_templates.x11.x86_64.zip" || {
-            echo "Failed to download Linux template"
-            exit 1
-          }
-          unzip -o linux_template.zip -d linux_template/
-          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/linux_x86_64
-          cp linux_template/templates/${GODOT_VERSION_FULL}.stable/linux_release.x86_64 \
-            ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/linux_release.x86_64 || true
-          cp linux_template/templates/${GODOT_VERSION_FULL}.stable/linux_debug.x86_64 \
-            ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/linux_debug.x86_64 || true
-          echo "Linux template installed"
+          # Godot 4.x uses consolidated export templates
+          # Linux and Web templates are included in the main container
+          # Just need to ensure they're in the right location
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          fi
+          echo "=== Templates after copy ==="
           ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || true
 
       - name: Linux Build
@@ -151,23 +142,12 @@ jobs:
           fi
           echo "=== Export Templates Available ==="
           ls -la ~/.local/share/godot/export_templates/ || echo "No templates found"
-
-      - name: Download Web Export Template
-        run: |
-          cd /tmp
-          echo "Downloading Godot ${GODOT_VERSION_FULL} Web export template..."
-          curl -L -o web_template.zip \
-            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION_FULL}-stable/Godot_v${GODOT_VERSION_FULL}-stable_web_export_templates.zip" || {
-            echo "Failed to download Web template"
-            exit 1
-          }
-          unzip -o web_template.zip -d web_template/
-          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/web
-          cp web_template/templates/${GODOT_VERSION_FULL}.stable/web_release.wasm \
-            ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/web_release.wasm || true
-          cp web_template/templates/${GODOT_VERSION_FULL}.stable/web_debug.wasm \
-            ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/web_debug.wasm || true
-          echo "Web template installed"
+          # Godot 4.x uses consolidated export templates
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          fi
+          echo "=== Templates after copy ==="
           ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || true
 
       - name: Web Build
