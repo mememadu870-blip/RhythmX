@@ -154,17 +154,20 @@ jobs:
           ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
 
           # Godot 4.x export - use preset path
+          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Linux/X11" 2>&1 | tee linux_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
 
-          # Check for output files in both locations
+          # Check for output files in all possible locations
           echo "=== Checking for output files ==="
-          ls -lh RhythmX.x86_64 build/linux/*.x86_64 build/*.x86_64 2>/dev/null || echo "No .x86_64 found"
+          ls -lh RhythmX.x86_64 2>/dev/null || echo "No RhythmX.x86_64 in root"
+          ls -lh build/linux/ 2>/dev/null || echo "build/linux empty or not found"
 
           # Copy to build/linux if in root
           if [ -f "RhythmX.x86_64" ]; then
-            mv RhythmX.x86_64 build/linux/
+            echo "Moving RhythmX.x86_64 to build/linux..."
+            mv -v RhythmX.x86_64 build/linux/
           fi
 
           echo "=== Final build output ==="
@@ -234,17 +237,22 @@ jobs:
           ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
 
           # Godot 4.x export - use preset path
+          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Web" 2>&1 | tee web_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
 
-          # Check for output files
+          # Check for output files in all possible locations
           echo "=== Checking for output files ==="
-          ls -lh RhythmX_web/index.html build/web/index.html 2>/dev/null || echo "No index.html found"
+          ls -la RhythmX_web/ 2>/dev/null || echo "No RhythmX_web directory"
+          ls -lh build/web/ 2>/dev/null || echo "No build/web directory"
 
-          # Copy from root if needed
+          # Copy from root to build/web
           if [ -d "RhythmX_web" ]; then
-            cp -r RhythmX_web/* build/web/ 2>/dev/null || true
+            echo "Copying RhythmX_web to build/web..."
+            rm -rf build/web/*
+            cp -rv RhythmX_web/* build/web/
+            echo "Copy complete"
           fi
 
           echo "=== Final build output ==="
@@ -384,26 +392,34 @@ jobs:
           godot --headless --verbose --path . --export-debug "Android" 2>&1 | tee android_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
-          tail -100 android_build.log
+          tail -50 android_build.log
 
           # Check multiple possible output locations
           echo "=== Checking for APK output ==="
           echo "--- build/android/ ---"
           ls -lh build/android/ || echo "build/android empty"
-          echo "--- ~/.local/share/godot/android_build/ ---"
-          ls -lhR ~/.local/share/godot/android_build/ 2>/dev/null || echo "No Gradle output"
           echo "--- Root directory ---"
           ls -lh *.apk 2>/dev/null || echo "No APK in root"
+          echo "--- ~/.local/share/godot/android_build/ ---"
+          ls -lhR ~/.local/share/godot/android_build/ 2>/dev/null || echo "No Gradle output"
 
-          # Copy from Gradle output if needed
+          # Copy APK to build/android from root if needed
           if [ ! -f "build/android/${PROJECT_NAME}-debug.apk" ]; then
-            echo "APK not in expected location, searching..."
-            find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || true
-            # Try to copy from Gradle output
-            APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
-            if [ -n "$APK_PATH" ]; then
-              echo "Found APK at: $APK_PATH"
-              cp "$APK_PATH" build/android/${PROJECT_NAME}-debug.apk
+            if [ -f "RhythmX-debug.apk" ]; then
+              echo "Found RhythmX-debug.apk in root, copying..."
+              cp -v RhythmX-debug.apk build/android/
+            elif [ -f "*.apk" ]; then
+              echo "Found APK in root, copying..."
+              cp -v *.apk build/android/
+            else
+              # Try to copy from Gradle output
+              echo "Searching Gradle output for APK..."
+              find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || true
+              APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
+              if [ -n "$APK_PATH" ]; then
+                echo "Found APK at: $APK_PATH"
+                cp "$APK_PATH" build/android/${PROJECT_NAME}-debug.apk
+              fi
             fi
           fi
 
