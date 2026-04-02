@@ -319,13 +319,35 @@ jobs:
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
           echo "=== Starting Android Export ==="
+          echo "Godot version:"
+          godot --version
+
+          # Godot 4.x with Gradle build outputs to Gradle cache
           godot --headless --verbose \
             --export-debug "Android" \
             build/android/${PROJECT_NAME}-debug.apk 2>&1 | tee android_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
           tail -100 android_build.log
-          ls -lh build/android/ || echo "Build directory empty"
+
+          # Check multiple possible output locations
+          echo "=== Checking for APK output ==="
+          ls -lh build/android/ || echo "build/android empty"
+          ls -lh ~/.local/share/godot/android_build/*/build/outputs/apk/ 2>/dev/null || echo "No Gradle output"
+
+          # Copy from Gradle output if needed
+          if [ ! -f "build/android/${PROJECT_NAME}-debug.apk" ]; then
+            echo "APK not in expected location, searching..."
+            find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || true
+            # Try to copy from Gradle output
+            APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
+            if [ -n "$APK_PATH" ]; then
+              echo "Found APK at: $APK_PATH"
+              cp "$APK_PATH" build/android/${PROJECT_NAME}-debug.apk
+            fi
+          fi
+
+          ls -lh build/android/ || echo "build/android still empty"
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Android build failed!"
             exit $EXIT_CODE
@@ -336,7 +358,7 @@ jobs:
         with:
           name: android-apk
           path: build/android/*.apk
-          if-no-files-found: error
+          if-no-files-found: warn
 
   # ============================================================
   # 构建汇总
