@@ -1,6 +1,4 @@
 # Godot 4.6 多平台构建工作流
-# 支持：Windows, Linux, Web, Android
-
 name: Godot Build
 
 on:
@@ -13,10 +11,7 @@ on:
 
 env:
   GODOT_VERSION: 4.6.1
-  EXPORT_NAME: RhythmX
   PROJECT_NAME: RhythmX
-  ANDROID_VERSION_NAME: 1.0.0
-  ANDROID_VERSION_CODE: 1
 
 jobs:
   # ============================================================
@@ -26,20 +21,32 @@ jobs:
     name: Windows Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.6.1
+      image: barichello/godot-ci:${GODOT_VERSION}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Godot Templates
+      - name: Setup Export Templates
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          fi
+          ls -la ~/.local/share/godot/export_templates/
+
+      - name: Verify Project
+        run: |
+          echo "=== Project Structure ==="
+          ls -la
+          echo "=== Export Presets ==="
+          cat export_presets.cfg | head -30
 
       - name: Windows Build
         run: |
-          mkdir -v -p build/windows
+          mkdir -p build/windows
           godot --headless --verbose --export-release "Windows Desktop" build/windows/${PROJECT_NAME}.exe
+          echo "=== Build Output ==="
+          ls -lh build/windows/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -54,20 +61,23 @@ jobs:
     name: Linux Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.6.1
+      image: barichello/godot-ci:${GODOT_VERSION}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Godot Templates
+      - name: Setup Export Templates
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          fi
 
       - name: Linux Build
         run: |
-          mkdir -v -p build/linux
+          mkdir -p build/linux
           godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64
+          ls -lh build/linux/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -82,38 +92,29 @@ jobs:
     name: Web Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.6.1
+      image: barichello/godot-ci:${GODOT_VERSION}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Godot Templates
+      - name: Setup Export Templates
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          fi
 
       - name: Web Build
         run: |
-          mkdir -v -p build/web
+          mkdir -p build/web
           godot --headless --verbose --export-release "Web" build/web/index.html
+          ls -lh build/web/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-build
           path: build/web
-
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        run: |
-          cd build/web
-          git init
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add .
-          git commit -m "Deploy to GitHub Pages"
-          git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git master:gh-pages
-        continue-on-error: true
 
   # ============================================================
   # Android 导出 (APK)
@@ -122,36 +123,31 @@ jobs:
     name: Android Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.6.1
+      image: barichello/godot-ci:${GODOT_VERSION}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Godot Templates
+      - name: Setup Export Templates
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p ~/.local/share/godot/export_templates
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          fi
+          # Also copy to templates directory for Godot 4.x
+          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION}.stable" ]; then
+            mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/
+          fi
 
       - name: Setup Android SDK
         run: |
-          # 使用容器中已有的 Android SDK
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-
-          # 确认 SDK 版本
-          echo "Android SDK Version:"
-          sdkmanager --version || true
-
-      - name: Setup Keystore Properties
-        run: |
-          # 创建临时 keystore 配置（仅用于 CI 测试）
-          # 生产环境请使用 secrets 配置
-          cat > android_keystore.properties << EOF
-          key.store=debug.keystore
-          key.store.password=android
-          key.alias=androiddebugkey
-          key.alias.password=android
-          EOF
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "PATH=$PATH"
+          sdkmanager --version 2>/dev/null || echo "sdkmanager not found"
+          ls -la $ANDROID_HOME 2>/dev/null || echo "Android SDK not found"
 
       - name: Create Debug Keystore
         run: |
@@ -160,60 +156,30 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug,O=Android,C=US"
 
-      - name: Download and Setup Godot Android Template
+      - name: Build APK (Debug Mode)
         run: |
-          # 下载 Godot 4.6.1 Android 导出模板
-          GODOT_URL="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_android_build_template.zip"
-          echo "Downloading Godot Android Template from: $GODOT_URL"
-          wget -q "$GODOT_URL" -O godot_android_template.zip || {
-            echo "Failed to download template, using container template"
-            exit 0
-          }
-          unzip -o godot_android_template.zip
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable
-          mv android_build_template/* ~/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-
-      - name: Configure Android Export Preset
-        run: |
-          # 更新导出预设配置
-          sed -i 's|gradle_build/use_gradle_build=false|gradle_build/use_gradle_build=true|' export_presets.cfg
-          sed -i 's|architectures/armeabi-v7a=true|architectures/armeabi-v7a=false|' export_presets.cfg
-          sed -i 's|architectures/arm64-v8a=false|architectures/arm64-v8a=true|' export_presets.cfg
-          sed -i 's|package/unique_name=".*"|package/unique_name="com.rhythmx.app"|' export_presets.cfg
-          cat export_presets.cfg
-
-      - name: Android Build
-        run: |
-          mkdir -v -p build/android
+          mkdir -p build/android
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-          # 使用 Gradle 构建模式导出
+          # Try export with debug settings
           godot --headless --verbose \
             --export-debug "Android" \
-            build/android/${PROJECT_NAME}.apk
+            build/android/${PROJECT_NAME}-debug.apk 2>&1 || {
+            echo "Standard export failed, trying alternative..."
+            # Fallback: check if Godot recognizes the preset
+            godot --headless --list-features 2>&1 | grep -i android || true
+            exit 1
+          }
 
-          # 检查结果
-          if [ -f build/android/${PROJECT_NAME}.apk ]; then
-            echo "Build successful!"
-            ls -lh build/android/
-          else
-            echo "Build failed, checking for .aab..."
-            ls -lh build/android/ || true
-          fi
+          echo "=== APK Output ==="
+          ls -lh build/android/ || true
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: build/android/*.apk
-          if-no-files-found: ignore
-
-      - name: Upload AAB Artifact (if exists)
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-aab
-          path: build/android/*.aab
           if-no-files-found: ignore
 
   # ============================================================
