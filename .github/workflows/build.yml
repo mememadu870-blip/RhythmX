@@ -90,25 +90,41 @@ jobs:
           if [ -d "/root/.config/godot" ]; then
             cp -r /root/.config/godot/* ~/.config/godot/ || true
           fi
+
+          echo "=== Checking container for templates ==="
+          echo "--- /root/.local/share/godot/ ---"
+          ls -laR /root/.local/share/godot/ 2>/dev/null | head -50 || echo "Nothing found"
+          echo "--- /root/.config/godot/ ---"
+          ls -laR /root/.config/godot/ 2>/dev/null | head -30 || echo "Nothing found"
+
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
+            echo "Found export_templates, copying..."
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
-          echo "=== Export Templates Available ==="
-          ls -la ~/.local/share/godot/export_templates/ || echo "No templates found"
-          # Godot 4.x uses consolidated export templates
-          # Linux and Web templates are included in the main container
-          # Just need to ensure they're in the right location
+
           if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+            echo "Found templates, copying..."
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
-          echo "=== Templates after copy ==="
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || true
+
+          echo "=== Final template state ==="
+          ls -laR ~/.local/share/godot/export_templates/ 2>/dev/null || echo "No templates"
+          ls -laR ~/.local/share/godot/templates/ 2>/dev/null || echo "No templates dir"
 
       - name: Linux Build
         run: |
           mkdir -p build/linux
-          godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64 2>&1 || exit 1
+          echo "=== Starting Linux Export ==="
+          echo "Template files:"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates found"
+          godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64 2>&1 | tee linux_build.log
+          EXIT_CODE=$?
+          echo "=== Export exited with code: $EXIT_CODE ==="
+          cat linux_build.log | tail -100
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Linux build failed!"
+            exit $EXIT_CODE
+          fi
           ls -lh build/linux/
 
       - name: Upload Artifact
@@ -137,23 +153,38 @@ jobs:
           if [ -d "/root/.config/godot" ]; then
             cp -r /root/.config/godot/* ~/.config/godot/ || true
           fi
+
+          echo "=== Checking container for templates ==="
+          echo "--- /root/.local/share/godot/ ---"
+          ls -laR /root/.local/share/godot/ 2>/dev/null | head -50 || echo "Nothing found"
+
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
+            echo "Found export_templates, copying..."
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
-          echo "=== Export Templates Available ==="
-          ls -la ~/.local/share/godot/export_templates/ || echo "No templates found"
-          # Godot 4.x uses consolidated export templates
+
           if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+            echo "Found templates, copying..."
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
-          echo "=== Templates after copy ==="
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || true
+
+          echo "=== Final template state ==="
+          ls -laR ~/.local/share/godot/export_templates/ 2>/dev/null || echo "No templates"
 
       - name: Web Build
         run: |
           mkdir -p build/web
-          godot --headless --verbose --export-release "Web" build/web/index.html 2>&1 || exit 1
+          echo "=== Starting Web Export ==="
+          echo "Template files:"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates found"
+          godot --headless --verbose --export-release "Web" build/web/index.html 2>&1 | tee web_build.log
+          EXIT_CODE=$?
+          echo "=== Export exited with code: $EXIT_CODE ==="
+          cat web_build.log | tail -100
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Web build failed!"
+            exit $EXIT_CODE
+          fi
           ls -lh build/web/
 
       - name: Upload Artifact
