@@ -54,11 +54,28 @@ jobs:
         run: |
           mkdir -p build/windows
           echo "=== Starting Windows Export ==="
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Project files ==="
+          ls -la
+          echo "=== export_presets.cfg ==="
+          head -30 export_presets.cfg
+
+          # Godot 4.x needs project.godot in current directory
+          echo "=== Running Godot export ==="
           godot --headless --verbose --export-release "Windows Desktop" build/windows/${PROJECT_NAME}.exe 2>&1 | tee build.log
           EXIT_CODE=$?
+
           echo "=== Export exited with code: $EXIT_CODE ==="
           echo "=== Build Output ==="
           ls -lh build/windows/ || echo "Build directory empty"
+
+          # List all files in build and root directories
+          echo "=== Files in build/windows ==="
+          find build/windows -type f 2>/dev/null || true
+          echo "=== Files in root ==="
+          find . -maxdepth 1 -name "*.exe" -o -name "*.pck" 2>/dev/null || true
+
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Build failed! Check logs above."
             exit $EXIT_CODE
