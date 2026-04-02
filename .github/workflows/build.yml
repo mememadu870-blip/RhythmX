@@ -58,23 +58,31 @@ jobs:
           pwd
           echo "=== Project files ==="
           ls -la
-          echo "=== export_presets.cfg ==="
-          head -30 export_presets.cfg
 
-          # Godot 4.x needs project.godot in current directory
+          # Godot 4.x export - the export path in preset must exist
+          # We use the preset's export_path, so just need to ensure build dirs exist
           echo "=== Running Godot export ==="
-          godot --headless --verbose --export-release "Windows Desktop" build/windows/${PROJECT_NAME}.exe 2>&1 | tee build.log
+          godot --headless --verbose --path . --export-release "Windows Desktop" 2>&1 | tee build.log
           EXIT_CODE=$?
 
           echo "=== Export exited with code: $EXIT_CODE ==="
-          echo "=== Build Output ==="
-          ls -lh build/windows/ || echo "Build directory empty"
 
-          # List all files in build and root directories
-          echo "=== Files in build/windows ==="
+          # Check both preset path and specified path
+          echo "=== Checking for output files ==="
+          ls -lh RhythmX.exe build/windows/*.exe build/*.exe 2>/dev/null || echo "No .exe found"
+          ls -lh RhythmX.pck build/windows/*.pck build/*.pck 2>/dev/null || echo "No .pck found"
+
+          # Copy files to build/windows if they're in root
+          if [ -f "RhythmX.exe" ]; then
+            mv RhythmX.exe build/windows/
+          fi
+          if [ -f "RhythmX.pck" ]; then
+            mv RhythmX.pck build/windows/
+          fi
+
+          echo "=== Final build output ==="
+          ls -lh build/windows/ || echo "Build directory empty"
           find build/windows -type f 2>/dev/null || true
-          echo "=== Files in root ==="
-          find . -maxdepth 1 -name "*.exe" -o -name "*.pck" 2>/dev/null || true
 
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Build failed! Check logs above."
@@ -145,13 +153,24 @@ jobs:
           ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in templates dir"
           ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
 
-          # Godot 4.x headless export
-          godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64 2>&1 | tee linux_build.log
+          # Godot 4.x export - use preset path
+          godot --headless --verbose --path . --export-release "Linux/X11" 2>&1 | tee linux_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
-          echo "=== Last 100 lines of log ==="
-          tail -100 linux_build.log
-          ls -lh build/linux/ 2>/dev/null || echo "Build directory empty"
+
+          # Check for output files in both locations
+          echo "=== Checking for output files ==="
+          ls -lh RhythmX.x86_64 build/linux/*.x86_64 build/*.x86_64 2>/dev/null || echo "No .x86_64 found"
+
+          # Copy to build/linux if in root
+          if [ -f "RhythmX.x86_64" ]; then
+            mv RhythmX.x86_64 build/linux/
+          fi
+
+          echo "=== Final build output ==="
+          ls -lh build/linux/ || echo "Build directory empty"
+          find build/linux -type f 2>/dev/null || true
+
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Linux build failed!"
             exit $EXIT_CODE
@@ -214,12 +233,24 @@ jobs:
           ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in templates dir"
           ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
 
-          godot --headless --verbose --export-release "Web" build/web/index.html 2>&1 | tee web_build.log
+          # Godot 4.x export - use preset path
+          godot --headless --verbose --path . --export-release "Web" 2>&1 | tee web_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
-          echo "=== Last 100 lines of log ==="
-          tail -100 web_build.log
-          ls -lh build/web/ 2>/dev/null || echo "Build directory empty"
+
+          # Check for output files
+          echo "=== Checking for output files ==="
+          ls -lh RhythmX_web/index.html build/web/index.html 2>/dev/null || echo "No index.html found"
+
+          # Copy from root if needed
+          if [ -d "RhythmX_web" ]; then
+            cp -r RhythmX_web/* build/web/ 2>/dev/null || true
+          fi
+
+          echo "=== Final build output ==="
+          ls -lh build/web/ || echo "Build directory empty"
+          find build/web -type f 2>/dev/null || true
+
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Web build failed!"
             exit $EXIT_CODE
@@ -349,14 +380,8 @@ jobs:
           echo "Godot version:"
           godot --version
 
-          # Godot 4.x with Gradle build outputs to Gradle cache
-          echo "=== Godot Version ==="
-          godot --version
-
-          echo "=== Starting Android Export ==="
-          godot --headless --verbose \
-            --export-debug "Android" \
-            build/android/${PROJECT_NAME}-debug.apk 2>&1 | tee android_build.log
+          # Godot 4.x export - use preset path
+          godot --headless --verbose --path . --export-debug "Android" 2>&1 | tee android_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
           tail -100 android_build.log
@@ -367,6 +392,8 @@ jobs:
           ls -lh build/android/ || echo "build/android empty"
           echo "--- ~/.local/share/godot/android_build/ ---"
           ls -lhR ~/.local/share/godot/android_build/ 2>/dev/null || echo "No Gradle output"
+          echo "--- Root directory ---"
+          ls -lh *.apk 2>/dev/null || echo "No APK in root"
 
           # Copy from Gradle output if needed
           if [ ! -f "build/android/${PROJECT_NAME}-debug.apk" ]; then
@@ -382,6 +409,7 @@ jobs:
 
           echo "=== Final APK check ==="
           ls -lh build/android/ || echo "build/android still empty"
+          find build/android -type f 2>/dev/null || true
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Android build failed!"
             exit $EXIT_CODE
