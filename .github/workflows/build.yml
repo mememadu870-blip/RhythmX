@@ -330,31 +330,38 @@ jobs:
           echo "=== Downloading Godot 4.6.1 Export Templates ==="
 
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
 
           TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable"
 
-          echo "Downloading Linux templates..."
-          curl -L -o linux_templates.x86_64.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_linux.x86_64.zip"
-          unzip -o linux_templates.x86_64.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          echo "Downloading Linux export templates..."
+          curl -L -o linux_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_linux_release.zip"
+          unzip -o linux_release.zip -d /tmp/linux_templates/
+          cp /tmp/linux_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp /tmp/linux_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
-          echo "Downloading Web templates..."
-          curl -L -o web_templates.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_web.zip"
-          unzip -o web_templates.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          echo "Downloading Web export templates..."
+          curl -L -o web_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_web_release.zip"
+          unzip -o web_release.zip -d /tmp/web_templates/
+          cp /tmp/web_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp /tmp/web_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
-          echo "Downloading Android templates..."
-          curl -L -o android_templates.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_android_release.apk"
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release
-          unzip -o android_templates.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release/
+          echo "Downloading Android export templates..."
+          curl -L -o android_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_android_release.zip"
+          unzip -o android_release.zip -d /tmp/android_templates/
+          cp /tmp/android_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp /tmp/android_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Copying container export templates..."
-            mkdir -p ~/.local/share/godot/export_templates
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/export_templates/
-          fi
+          echo "Downloading Windows export templates (for completeness)..."
+          curl -L -o windows_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_windows_release.zip"
+          unzip -o windows_release.zip -d /tmp/windows_templates/
+          cp /tmp/windows_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
 
-          echo "=== Installed Templates ==="
-          ls -laR ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ | head -50
+          echo "=== Installed Template Files ==="
+          echo "--- templates dir ---"
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          echo "--- export_templates dir ---"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Setup Android SDK
         run: |
