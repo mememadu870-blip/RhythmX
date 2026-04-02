@@ -94,38 +94,47 @@ jobs:
           echo "=== Checking container for templates ==="
           echo "--- /root/.local/share/godot/ ---"
           ls -laR /root/.local/share/godot/ 2>/dev/null | head -50 || echo "Nothing found"
-          echo "--- /root/.config/godot/ ---"
-          ls -laR /root/.config/godot/ 2>/dev/null | head -30 || echo "Nothing found"
+          echo "--- /root/.local/share/godot/templates/ ---"
+          ls -laR /root/.local/share/godot/templates/ 2>/dev/null | head -50 || echo "Nothing found"
 
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Found export_templates, copying..."
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
-          fi
-
+          # Godot 4.6 uses a different template structure
+          # Templates are in /root/.local/share/godot/templates/4.6.stable/
           if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Found templates, copying..."
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
+            echo "Found templates directory"
+            # Copy the entire templates folder
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable \
+              ~/.local/share/godot/templates/
           fi
 
-          echo "=== Final template state ==="
-          ls -laR ~/.local/share/godot/export_templates/ 2>/dev/null || echo "No templates"
-          ls -laR ~/.local/share/godot/templates/ 2>/dev/null || echo "No templates dir"
+          # Also check for export_templates (older structure)
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            echo "Found export_templates directory"
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable \
+              ~/.local/share/godot/export_templates/
+          fi
+
+          echo "=== Final state ==="
+          ls -laR ~/.local/share/godot/ 2>/dev/null | head -60
 
       - name: Linux Build
         run: |
           mkdir -p build/linux
           echo "=== Starting Linux Export ==="
-          echo "Template files:"
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates found"
+          echo "Checking available templates:"
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in templates dir"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
+
+          # Godot 4.x headless export
           godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64 2>&1 | tee linux_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
-          cat linux_build.log | tail -100
+          echo "=== Last 100 lines of log ==="
+          tail -100 linux_build.log
+          ls -lh build/linux/ 2>/dev/null || echo "Build directory empty"
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Linux build failed!"
             exit $EXIT_CODE
           fi
-          ls -lh build/linux/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -155,37 +164,44 @@ jobs:
           fi
 
           echo "=== Checking container for templates ==="
-          echo "--- /root/.local/share/godot/ ---"
-          ls -laR /root/.local/share/godot/ 2>/dev/null | head -50 || echo "Nothing found"
+          echo "--- /root/.local/share/godot/templates/ ---"
+          ls -laR /root/.local/share/godot/templates/ 2>/dev/null | head -50 || echo "Nothing found"
 
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Found export_templates, copying..."
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
-          fi
-
+          # Godot 4.6 uses templates directory
           if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Found templates, copying..."
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
+            echo "Found templates directory"
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable \
+              ~/.local/share/godot/templates/
           fi
 
-          echo "=== Final template state ==="
-          ls -laR ~/.local/share/godot/export_templates/ 2>/dev/null || echo "No templates"
+          # Also check for export_templates
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            echo "Found export_templates directory"
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable \
+              ~/.local/share/godot/export_templates/
+          fi
+
+          echo "=== Final state ==="
+          ls -laR ~/.local/share/godot/ 2>/dev/null | head -60
 
       - name: Web Build
         run: |
           mkdir -p build/web
           echo "=== Starting Web Export ==="
-          echo "Template files:"
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates found"
+          echo "Checking available templates:"
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in templates dir"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
+
           godot --headless --verbose --export-release "Web" build/web/index.html 2>&1 | tee web_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
-          cat web_build.log | tail -100
+          echo "=== Last 100 lines of log ==="
+          tail -100 web_build.log
+          ls -lh build/web/ 2>/dev/null || echo "Build directory empty"
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Web build failed!"
             exit $EXIT_CODE
           fi
-          ls -lh build/web/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
