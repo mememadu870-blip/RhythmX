@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  GODOT_VERSION: 4.6.1
+  GODOT_VERSION: 4.6
+  GODOT_VERSION_FULL: 4.6.1
   PROJECT_NAME: RhythmX
 
 jobs:
@@ -21,7 +22,7 @@ jobs:
     name: Windows Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:${GODOT_VERSION}
+      image: barichello/godot-ci:4.6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,10 +30,10 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
-            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
-          ls -la ~/.local/share/godot/export_templates/
+          ls -la ~/.local/share/godot/export_templates/ || echo "No export templates found"
 
       - name: Verify Project
         run: |
@@ -61,7 +62,7 @@ jobs:
     name: Linux Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:${GODOT_VERSION}
+      image: barichello/godot-ci:4.6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -69,8 +70,8 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
-            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
 
       - name: Linux Build
@@ -92,7 +93,7 @@ jobs:
     name: Web Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:${GODOT_VERSION}
+      image: barichello/godot-ci:4.6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,8 +101,8 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
-            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
 
       - name: Web Build
@@ -123,7 +124,7 @@ jobs:
     name: Android Export
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:${GODOT_VERSION}
+      image: barichello/godot-ci:4.6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -131,13 +132,13 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
-            mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
           # Also copy to templates directory for Godot 4.x
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable
-          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION}.stable" ]; then
-            mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/
+          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            mv /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/templates/
           fi
 
       - name: Setup Android SDK
