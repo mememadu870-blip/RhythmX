@@ -68,7 +68,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: build/windows
+          path: |
+            build/windows/*.exe
+            build/windows/*.pck
+          if-no-files-found: warn
+          include-hidden-files: false
 
   # ============================================================
   # Linux 桌面版构建
@@ -140,7 +144,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: build/linux
+          path: build/linux/*.x86_64
+          if-no-files-found: warn
 
   # ============================================================
   # Web 导出 (HTML5)
@@ -207,7 +212,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-build
-          path: build/web
+          path: |
+            build/web/index.html
+            build/web/*.pck
+            build/web/*.wasm
+            build/web/*.js
+          if-no-files-found: warn
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
@@ -323,6 +333,10 @@ jobs:
           godot --version
 
           # Godot 4.x with Gradle build outputs to Gradle cache
+          echo "=== Godot Version ==="
+          godot --version
+
+          echo "=== Starting Android Export ==="
           godot --headless --verbose \
             --export-debug "Android" \
             build/android/${PROJECT_NAME}-debug.apk 2>&1 | tee android_build.log
@@ -332,8 +346,10 @@ jobs:
 
           # Check multiple possible output locations
           echo "=== Checking for APK output ==="
+          echo "--- build/android/ ---"
           ls -lh build/android/ || echo "build/android empty"
-          ls -lh ~/.local/share/godot/android_build/*/build/outputs/apk/ 2>/dev/null || echo "No Gradle output"
+          echo "--- ~/.local/share/godot/android_build/ ---"
+          ls -lhR ~/.local/share/godot/android_build/ 2>/dev/null || echo "No Gradle output"
 
           # Copy from Gradle output if needed
           if [ ! -f "build/android/${PROJECT_NAME}-debug.apk" ]; then
@@ -347,6 +363,7 @@ jobs:
             fi
           fi
 
+          echo "=== Final APK check ==="
           ls -lh build/android/ || echo "build/android still empty"
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Android build failed!"
