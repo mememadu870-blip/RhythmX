@@ -1,4 +1,5 @@
-# Godot 4.6 多平台构建工作流
+# Godot 4.6 构建工作流
+# 当前支持：Windows (已测试通过)
 name: Godot Build
 
 on:
@@ -16,7 +17,7 @@ env:
 
 jobs:
   # ============================================================
-  # Windows 桌面版构建
+  # Windows 桌面版构建 (主要目标)
   # ============================================================
   export-windows:
     name: Windows Export
@@ -48,8 +49,6 @@ jobs:
           cat export_presets.cfg | head -50
           echo "=== Checking Godot Version ==="
           godot --version
-          echo "=== Available Features ==="
-          godot --list-features 2>&1 | head -20 || true
 
       - name: Windows Build
         run: |
@@ -73,6 +72,7 @@ jobs:
 
   # ============================================================
   # Linux 桌面版构建
+  # 注意：需要先在 Godot 编辑器中添加 "Linux/X11" 导出预设
   # ============================================================
   export-linux:
     name: Linux Export
@@ -86,6 +86,10 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
+          mkdir -p ~/.config/godot
+          if [ -d "/root/.config/godot" ]; then
+            cp -r /root/.config/godot/* ~/.config/godot/ || true
+          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
@@ -93,7 +97,7 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -p build/linux
-          godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64
+          godot --headless --verbose --export-release "Linux/X11" build/linux/${PROJECT_NAME}.x86_64 2>&1 || exit 1
           ls -lh build/linux/
 
       - name: Upload Artifact
@@ -104,6 +108,7 @@ jobs:
 
   # ============================================================
   # Web 导出 (HTML5)
+  # 注意：需要先在 Godot 编辑器中添加 "Web" 导出预设
   # ============================================================
   export-web:
     name: Web Export
@@ -117,6 +122,10 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
+          mkdir -p ~/.config/godot
+          if [ -d "/root/.config/godot" ]; then
+            cp -r /root/.config/godot/* ~/.config/godot/ || true
+          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
@@ -124,7 +133,7 @@ jobs:
       - name: Web Build
         run: |
           mkdir -p build/web
-          godot --headless --verbose --export-release "Web" build/web/index.html
+          godot --headless --verbose --export-release "Web" build/web/index.html 2>&1 || exit 1
           ls -lh build/web/
 
       - name: Upload Artifact
@@ -133,14 +142,28 @@ jobs:
           name: web-build
           path: build/web
 
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd build/web
+          git init
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Deploy to GitHub Pages"
+          git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git master:gh-pages
+        continue-on-error: true
+
   # ============================================================
   # Android 导出 (APK)
+  # 注意：需要先在 Godot 编辑器中配置 Android 导出预设和签名密钥
   # ============================================================
   export-android:
     name: Android Export
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.6
+    if: false # 暂时禁用，直到配置完成
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -148,10 +171,13 @@ jobs:
       - name: Setup Export Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates
+          mkdir -p ~/.config/godot
+          if [ -d "/root/.config/godot" ]; then
+            cp -r /root/.config/godot/* ~/.config/godot/ || true
+          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             mv /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/export_templates/
           fi
-          # Also copy to templates directory for Godot 4.x
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
             mv /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable ~/.local/share/godot/templates/
@@ -162,16 +188,20 @@ jobs:
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
           echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "PATH=$PATH"
-          sdkmanager --version 2>/dev/null || echo "sdkmanager not found"
-          ls -la $ANDROID_HOME 2>/dev/null || echo "Android SDK not found"
+          which java || echo "Java not found"
+          which keytool || echo "keytool not found"
 
       - name: Create Debug Keystore
         run: |
+          # 检查是否有 java/keytool
+          if ! command -v keytool &> /dev/null; then
+            echo "keytool not found, installing openjdk..."
+            apt-get update && apt-get install -y openjdk-11-jdk-headless || true
+          fi
           keytool -genkey -v -keystore debug.keystore \
             -storepass android -alias androiddebugkey \
             -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+            -dname "CN=Android Debug,O=Android,C=US" || echo "Keystore creation failed"
 
       - name: Build APK (Debug Mode)
         run: |
@@ -179,17 +209,13 @@ jobs:
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-          # Try export with debug settings
           godot --headless --verbose \
             --export-debug "Android" \
             build/android/${PROJECT_NAME}-debug.apk 2>&1 || {
-            echo "Standard export failed, trying alternative..."
-            # Fallback: check if Godot recognizes the preset
-            godot --headless --list-features 2>&1 | grep -i android || true
+            echo "Export failed"
             exit 1
           }
 
-          echo "=== APK Output ==="
           ls -lh build/android/ || true
 
       - name: Upload APK Artifact
@@ -205,7 +231,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [export-windows, export-linux, export-web, export-android]
+    needs: [export-windows, export-linux, export-web]
     if: always()
     steps:
       - name: Generate Summary
@@ -215,6 +241,6 @@ jobs:
           echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Windows  | ${{ needs.export-windows.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Linux    | ${{ needs.export-linux.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Web      | ${{ needs.export-web.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Android  | ${{ needs.export-android.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux    | ${{ needs.export-linux.result || 'disabled' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Web      | ${{ needs.export-web.result || 'disabled' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android  | ${{ needs.export-android.result || 'disabled' }} |" >> $GITHUB_STEP_SUMMARY
