@@ -209,11 +209,22 @@ jobs:
       - name: Download Android Template
         run: |
           apt-get update -qq && apt-get install -y -qq curl unzip
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
+
+          # Download Godot 4.6.1 export templates
           cd /tmp
+          curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
+          unzip -o templates.tpz
+
+          # Copy all template files including android_source.zip
+          cp *.so *.arpa *.zip ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+
+          # Download Android AAR template
           curl -L -o android.aar "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/godot-lib.4.6.1.stable.template_release.aar"
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
-          cp android.aar ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release.apk
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp android.aar ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/android_release.apk
+
+          echo "Installed templates:"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Setup Android SDK
         run: |
@@ -245,12 +256,25 @@ jobs:
           mkdir -p build/android
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+          # Configure Godot with Android SDK path
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres << EOF
+          [gd_resource type="EditorSettings" format=3]
+          [resource]
+          android/sdk_path = "/opt/android-sdk"
+          android/adb_executable = "/opt/android-sdk/platform-tools/adb"
+          android/apksigner_executable = "/opt/android-sdk/build-tools/34.0.0/bin/apksigner"
+          EOF
+
+          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-debug "Android" 2>&1 | tee android_build.log
           EXIT_CODE=$?
 
           echo "=== Searching for APK ==="
           ls -lh *.apk 2>/dev/null || echo "No APK in root"
           find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || echo "No APK in Gradle cache"
+          find /tmp -name "*.apk" 2>/dev/null | head -5 || echo "No APK in /tmp"
 
           [ -f "RhythmX-debug.apk" ] && cp -v RhythmX-debug.apk build/android/
           APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
