@@ -1,5 +1,4 @@
-# Godot 4.6 构建工作流
-# 支持：Windows, Linux, Web, Android
+# Godot 4.6 Build Workflow
 name: Godot Build
 
 on:
@@ -17,7 +16,7 @@ env:
 
 jobs:
   # ============================================================
-  # Windows 桌面版构建 (主要目标)
+  # Windows Export
   # ============================================================
   export-windows:
     name: Windows Export
@@ -28,84 +27,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download All Export Templates
+      - name: Setup Templates
         run: |
-          echo "=== Downloading Godot 4.6.1 Export Templates ==="
-
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
-
-          # Godot 4.6.1 export templates release URL
-          TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable"
-
-          # Download the main export templates package (contains all platforms)
-          echo "Downloading main export templates..."
-          curl -L -o export_templates.tpz "${TEMPLATES_URL}/Godot_v4.6.1-stable_export_templates.tpz"
-          unzip -o export_templates.tpz -d /tmp/templates/
-
-          # Copy template files to Godot template directory
-          cp /tmp/templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
-
-          # Download Android AAR template (required for Gradle builds)
-          echo "Downloading Android AAR template..."
-          curl -L -o android_template.aar "${TEMPLATES_URL}/godot-lib.4.6.1.stable.template_release.aar"
-          cp android_template.aar ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release.apk
-          cp android_template.aar ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/android_release.apk
-
-          echo "=== Installed Template Files ==="
-          echo "--- templates dir ---"
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          echo "--- export_templates dir ---"
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
-
-      - name: Verify Project
-        run: |
-          echo "=== Project Structure ==="
-          ls -la
-          echo "=== Export Presets ==="
-          cat export_presets.cfg | head -50
-          echo "=== Checking Godot Version ==="
-          godot --version
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          fi
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          fi
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
       - name: Windows Build
         run: |
           mkdir -p build/windows
-          echo "=== Starting Windows Export ==="
-          echo "=== Current directory ==="
-          pwd
-          echo "=== Project files ==="
-          ls -la
-
-          # Godot 4.x export - the export path in preset must exist
-          # We use the preset's export_path, so just need to ensure build dirs exist
-          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Windows Desktop" 2>&1 | tee build.log
           EXIT_CODE=$?
-
-          echo "=== Export exited with code: $EXIT_CODE ==="
-
-          # Check both preset path and specified path
-          echo "=== Checking for output files ==="
-          ls -lh RhythmX.exe build/windows/*.exe build/*.exe 2>/dev/null || echo "No .exe found"
-          ls -lh RhythmX.pck build/windows/*.pck build/*.pck 2>/dev/null || echo "No .pck found"
-
-          # Copy files to build/windows if they're in root
-          if [ -f "RhythmX.exe" ]; then
-            mv RhythmX.exe build/windows/
-          fi
-          if [ -f "RhythmX.pck" ]; then
-            mv RhythmX.pck build/windows/
-          fi
-
-          echo "=== Final build output ==="
-          ls -lh build/windows/ || echo "Build directory empty"
-          find build/windows -type f 2>/dev/null || true
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Build failed! Check logs above."
-            exit $EXIT_CODE
-          fi
+          [ -f "RhythmX.exe" ] && cp -v RhythmX.exe build/windows/
+          [ -f "RhythmX.pck" ] && cp -v RhythmX.pck build/windows/
+          ls -lh build/windows/ || echo "build/windows empty"
+          exit $EXIT_CODE
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -115,10 +59,9 @@ jobs:
             build/windows/*.exe
             build/windows/*.pck
           if-no-files-found: warn
-          include-hidden-files: false
 
   # ============================================================
-  # Linux 桌面版构建
+  # Linux Export
   # ============================================================
   export-linux:
     name: Linux Export
@@ -129,70 +72,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download All Export Templates
+      - name: Setup Templates
         run: |
-          echo "=== Downloading Godot 4.6.1 Export Templates ==="
-
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
-
-          TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable"
-
-          echo "Downloading Linux templates..."
-          curl -L -o linux_templates.x86_64.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_linux.x86_64.zip"
-          unzip -o linux_templates.x86_64.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Web templates..."
-          curl -L -o web_templates.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_web.zip"
-          unzip -o web_templates.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Android templates..."
-          curl -L -o android_templates.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_android_release.apk"
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release
-          unzip -o android_templates.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release/
-
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Copying container export templates..."
-            mkdir -p ~/.local/share/godot/export_templates
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/export_templates/
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
           fi
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          fi
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
-          echo "=== Installed Templates ==="
-          ls -laR ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ | head -50
+      - name: Download Linux/Web Templates
+        run: |
+          cd /tmp
+          curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
+          unzip -o templates.tpz
+          cp *.so *.arpa ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          cp *.so *.arpa ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Linux Build
         run: |
           mkdir -p build/linux
-          echo "=== Starting Linux Export ==="
-          echo "Checking available templates:"
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in templates dir"
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
-
-          # Godot 4.x export - use preset path
-          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Linux/X11" 2>&1 | tee linux_build.log
           EXIT_CODE=$?
-          echo "=== Export exited with code: $EXIT_CODE ==="
-
-          # Check for output files in all possible locations
-          echo "=== Checking for output files ==="
-          ls -lh RhythmX.x86_64 2>/dev/null || echo "No RhythmX.x86_64 in root"
-          ls -lh build/linux/ 2>/dev/null || echo "build/linux empty or not found"
-
-          # Copy to build/linux if in root
-          if [ -f "RhythmX.x86_64" ]; then
-            echo "Moving RhythmX.x86_64 to build/linux..."
-            mv -v RhythmX.x86_64 build/linux/
-          fi
-
-          echo "=== Final build output ==="
-          ls -lh build/linux/ || echo "Build directory empty"
-          find build/linux -type f 2>/dev/null || true
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Linux build failed!"
-            exit $EXIT_CODE
-          fi
+          [ -f "RhythmX.x86_64" ] && cp -v RhythmX.x86_64 build/linux/
+          ls -lh build/linux/ || echo "build/linux empty"
+          exit $EXIT_CODE
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -202,7 +112,7 @@ jobs:
           if-no-files-found: warn
 
   # ============================================================
-  # Web 导出 (HTML5)
+  # Web Export
   # ============================================================
   export-web:
     name: Web Export
@@ -213,72 +123,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download All Export Templates
+      - name: Setup Templates
         run: |
-          echo "=== Downloading Godot 4.6.1 Export Templates ==="
-
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
-
-          TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable"
-
-          echo "Downloading Linux templates..."
-          curl -L -o linux_templates.x86_64.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_linux.x86_64.zip"
-          unzip -o linux_templates.x86_64.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Web templates..."
-          curl -L -o web_templates.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_web.zip"
-          unzip -o web_templates.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Android templates..."
-          curl -L -o android_templates.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_android_release.apk"
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release
-          unzip -o android_templates.zip -d ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release/
-
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            echo "Copying container export templates..."
-            mkdir -p ~/.local/share/godot/export_templates
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/export_templates/
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
           fi
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          fi
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
-          echo "=== Installed Templates ==="
-          ls -laR ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ | head -50
+      - name: Download Linux/Web Templates
+        run: |
+          cd /tmp
+          curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
+          unzip -o templates.tpz
+          cp *.so *.arpa ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          cp *.so *.arpa ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Web Build
         run: |
           mkdir -p build/web
-          echo "=== Starting Web Export ==="
-          echo "Checking available templates:"
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in templates dir"
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || echo "No templates in export_templates dir"
-
-          # Godot 4.x export - use preset path
-          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Web" 2>&1 | tee web_build.log
           EXIT_CODE=$?
-          echo "=== Export exited with code: $EXIT_CODE ==="
-
-          # Check for output files in all possible locations
-          echo "=== Checking for output files ==="
-          ls -la RhythmX_web/ 2>/dev/null || echo "No RhythmX_web directory"
-          ls -lh build/web/ 2>/dev/null || echo "No build/web directory"
-
-          # Copy from root to build/web
-          if [ -d "RhythmX_web" ]; then
-            echo "Copying RhythmX_web to build/web..."
-            rm -rf build/web/*
-            cp -rv RhythmX_web/* build/web/
-            echo "Copy complete"
-          fi
-
-          echo "=== Final build output ==="
-          ls -lh build/web/ || echo "Build directory empty"
-          find build/web -type f 2>/dev/null || true
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Web build failed!"
-            exit $EXIT_CODE
-          fi
+          if [ -d "RhythmX_web" ]; then cp -rv RhythmX_web/* build/web/; fi
+          ls -lh build/web/ || echo "build/web empty"
+          exit $EXIT_CODE
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -304,7 +179,7 @@ jobs:
         continue-on-error: true
 
   # ============================================================
-  # Android 导出 (APK)
+  # Android Export
   # ============================================================
   export-android:
     name: Android Export
@@ -315,165 +190,72 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download All Export Templates
+      - name: Setup Templates
         run: |
-          echo "=== Downloading Godot 4.6.1 Export Templates ==="
-
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          fi
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
+              ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          fi
+          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
-          TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable"
-
-          echo "Downloading Linux export templates..."
-          curl -L -o linux_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_linux_release.zip"
-          unzip -o linux_release.zip -d /tmp/linux_templates/
-          cp /tmp/linux_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/linux_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Web export templates..."
-          curl -L -o web_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_web_release.zip"
-          unzip -o web_release.zip -d /tmp/web_templates/
-          cp /tmp/web_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/web_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Android export templates..."
-          curl -L -o android_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_android_release.zip"
-          unzip -o android_release.zip -d /tmp/android_templates/
-          cp /tmp/android_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/android_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Windows export templates (for completeness)..."
-          curl -L -o windows_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_windows_release.zip"
-          unzip -o windows_release.zip -d /tmp/windows_templates/
-          cp /tmp/windows_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "=== Installed Template Files ==="
-          echo "--- templates dir ---"
+      - name: Download Android Template
+        run: |
+          cd /tmp
+          curl -L -o android.aar "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/godot-lib.4.6.1.stable.template_release.aar"
+          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
+          cp android.aar ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release.apk
           ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          echo "--- export_templates dir ---"
-          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Setup Android SDK
         run: |
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "PATH=$PATH"
           sdkmanager --version 2>/dev/null || echo "sdkmanager not found"
-          ls -la $ANDROID_HOME 2>/dev/null || echo "Android SDK not found"
 
       - name: Install Android Build Tools
         run: |
           export ANDROID_HOME=/opt/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
           yes | sdkmanager --licenses 2>/dev/null || true
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -10 || true
 
       - name: Create Debug Keystore
         run: |
-          export ANDROID_HOME=/opt/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-
-          # Create keystore directory
           mkdir -p ~/.android
-
-          # Install OpenJDK if keytool not available
-          if ! command -v keytool &> /dev/null; then
-            echo "Installing OpenJDK..."
-            apt-get update -qq && apt-get install -y -qq openjdk-11-jdk-headless
-          fi
-
-          # Generate debug keystore
-          echo "Generating debug keystore..."
+          apt-get update -qq && apt-get install -y -qq openjdk-11-jdk-headless -y
           keytool -genkey -v \
             -keystore ~/.android/debug.keystore \
             -storepass android \
             -alias androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
+            -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug, O=Android, C=US" \
-            -noprompt 2>&1 || {
-            echo "keytool failed, trying with different options..."
-            keytool -genkeypair \
-              -keystore ~/.android/debug.keystore \
-              -storepass android \
-              -alias androiddebugkey \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -dname "CN=Android Debug, O=Android, C=US"
-          }
-
-          echo "Keystore created:"
+            -noprompt
           ls -la ~/.android/debug.keystore
 
-      - name: Build APK (Debug Mode)
+      - name: Build APK
         run: |
           mkdir -p build/android
           export ANDROID_HOME=/opt/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-
-          echo "=== Starting Android Export ==="
-          echo "Godot version:"
-          godot --version
-
-          # Show export presets
-          echo "=== Export Presets ==="
-          grep -A5 'name="Android"' export_presets.cfg | head -10
-
-          # Godot 4.x export - use preset path
-          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-debug "Android" 2>&1 | tee android_build.log
           EXIT_CODE=$?
-          echo "=== Export exited with code: $EXIT_CODE ==="
 
-          # Check ALL possible APK output locations
-          echo "=== Searching for APK in all locations ==="
-          echo "--- Root directory (*.apk) ---"
+          echo "=== Searching for APK ==="
           ls -lh *.apk 2>/dev/null || echo "No APK in root"
+          find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || echo "No APK in Gradle cache"
 
-          echo "--- build/android/ ---"
-          ls -lh build/android/ 2>/dev/null || echo "build/android empty"
-
-          echo "--- res://build/android/ (project relative) ---"
-          ls -lh build/android/*.apk 2>/dev/null || echo "No APK in build/android"
-
-          echo "--- ~/.local/share/godot/android_build/ (Gradle cache) ---"
-          find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -10 || echo "No APK in Gradle cache"
-
-          echo "--- /tmp/ ---"
-          find /tmp/ -name "*.apk" 2>/dev/null | head -5 || echo "No APK in /tmp"
-
-          # Copy APK to build/android
-          echo "=== Copying APK to build/android ==="
-          if [ -f "build/android/RhythmX-debug.apk" ]; then
-            echo "APK already in build/android"
-          elif [ -f "RhythmX-debug.apk" ]; then
-            echo "Found RhythmX-debug.apk in root, copying..."
-            cp -v RhythmX-debug.apk build/android/
-          elif [ -f "build/android-debug.apk" ]; then
-            echo "Found build/android-debug.apk, copying..."
-            cp -v build/android-debug.apk build/android/
-          else
-            # Search everywhere and copy first one found
-            APK_PATH=$(find / -name "*.apk" -type f 2>/dev/null | grep -i rhythm | head -1)
-            if [ -n "$APK_PATH" ]; then
-              echo "Found APK at: $APK_PATH"
-              cp -v "$APK_PATH" build/android/RhythmX-debug.apk
-            else
-              echo "ERROR: Could not find any APK file!"
-            fi
+          [ -f "RhythmX-debug.apk" ] && cp -v RhythmX-debug.apk build/android/
+          APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APK_PATH" ] && [ ! -f "build/android/RhythmX-debug.apk" ]; then
+            cp -v "$APK_PATH" build/android/RhythmX-debug.apk
           fi
-
-          echo "=== Final APK check ==="
-          ls -lh build/android/ || echo "build/android still empty"
-          find build/android -type f 2>/dev/null || true
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Android build failed!"
-            exit $EXIT_CODE
-          fi
+          ls -lh build/android/ || echo "build/android empty"
+          exit $EXIT_CODE
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -483,7 +265,7 @@ jobs:
           if-no-files-found: warn
 
   # ============================================================
-  # 构建汇总
+  # Build Summary
   # ============================================================
   build-summary:
     name: Build Summary
@@ -501,9 +283,3 @@ jobs:
           echo "| Linux    | ${{ needs.export-linux.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Web      | ${{ needs.export-web.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Android  | ${{ needs.export-android.result }} |" >> $GITHUB_STEP_SUMMARY
-
-          # List artifacts
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "Download artifacts from the workflow run page:" >> $GITHUB_STEP_SUMMARY
-          echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
