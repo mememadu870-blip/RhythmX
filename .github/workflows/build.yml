@@ -88,6 +88,7 @@ jobs:
 
       - name: Download Linux/Web Templates
         run: |
+          apt-get update -qq && apt-get install -y -qq curl unzip
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
@@ -139,6 +140,7 @@ jobs:
 
       - name: Download Linux/Web Templates
         run: |
+          apt-get update -qq && apt-get install -y -qq curl unzip
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
@@ -206,6 +208,7 @@ jobs:
 
       - name: Download Android Template
         run: |
+          apt-get update -qq && apt-get install -y -qq curl unzip
           cd /tmp
           curl -L -o android.aar "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/godot-lib.4.6.1.stable.template_release.aar"
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
