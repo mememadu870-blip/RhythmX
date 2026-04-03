@@ -428,44 +428,58 @@ jobs:
           echo "Godot version:"
           godot --version
 
+          # Show export presets
+          echo "=== Export Presets ==="
+          grep -A5 'name="Android"' export_presets.cfg | head -10
+
           # Godot 4.x export - use preset path
+          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-debug "Android" 2>&1 | tee android_build.log
           EXIT_CODE=$?
           echo "=== Export exited with code: $EXIT_CODE ==="
-          tail -50 android_build.log
 
-          # Check multiple possible output locations
-          echo "=== Checking for APK output ==="
-          echo "--- build/android/ ---"
-          ls -lh build/android/ || echo "build/android empty"
-          echo "--- Root directory ---"
+          # Check ALL possible APK output locations
+          echo "=== Searching for APK in all locations ==="
+          echo "--- Root directory (*.apk) ---"
           ls -lh *.apk 2>/dev/null || echo "No APK in root"
-          echo "--- ~/.local/share/godot/android_build/ ---"
-          ls -lhR ~/.local/share/godot/android_build/ 2>/dev/null || echo "No Gradle output"
 
-          # Copy APK to build/android from root if needed
-          if [ ! -f "build/android/${PROJECT_NAME}-debug.apk" ]; then
-            if [ -f "RhythmX-debug.apk" ]; then
-              echo "Found RhythmX-debug.apk in root, copying..."
-              cp -v RhythmX-debug.apk build/android/
-            elif [ -f "*.apk" ]; then
-              echo "Found APK in root, copying..."
-              cp -v *.apk build/android/
+          echo "--- build/android/ ---"
+          ls -lh build/android/ 2>/dev/null || echo "build/android empty"
+
+          echo "--- res://build/android/ (project relative) ---"
+          ls -lh build/android/*.apk 2>/dev/null || echo "No APK in build/android"
+
+          echo "--- ~/.local/share/godot/android_build/ (Gradle cache) ---"
+          find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -10 || echo "No APK in Gradle cache"
+
+          echo "--- /tmp/ ---"
+          find /tmp/ -name "*.apk" 2>/dev/null | head -5 || echo "No APK in /tmp"
+
+          # Copy APK to build/android
+          echo "=== Copying APK to build/android ==="
+          if [ -f "build/android/RhythmX-debug.apk" ]; then
+            echo "APK already in build/android"
+          elif [ -f "RhythmX-debug.apk" ]; then
+            echo "Found RhythmX-debug.apk in root, copying..."
+            cp -v RhythmX-debug.apk build/android/
+          elif [ -f "build/android-debug.apk" ]; then
+            echo "Found build/android-debug.apk, copying..."
+            cp -v build/android-debug.apk build/android/
+          else
+            # Search everywhere and copy first one found
+            APK_PATH=$(find / -name "*.apk" -type f 2>/dev/null | grep -i rhythm | head -1)
+            if [ -n "$APK_PATH" ]; then
+              echo "Found APK at: $APK_PATH"
+              cp -v "$APK_PATH" build/android/RhythmX-debug.apk
             else
-              # Try to copy from Gradle output
-              echo "Searching Gradle output for APK..."
-              find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || true
-              APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
-              if [ -n "$APK_PATH" ]; then
-                echo "Found APK at: $APK_PATH"
-                cp "$APK_PATH" build/android/${PROJECT_NAME}-debug.apk
-              fi
+              echo "ERROR: Could not find any APK file!"
             fi
           fi
 
           echo "=== Final APK check ==="
           ls -lh build/android/ || echo "build/android still empty"
           find build/android -type f 2>/dev/null || true
+
           if [ $EXIT_CODE -ne 0 ]; then
             echo "Android build failed!"
             exit $EXIT_CODE
