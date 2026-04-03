@@ -29,17 +29,12 @@ jobs:
 
       - name: Setup Templates
         run: |
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
-          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
               ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
           fi
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
       - name: Windows Build
         run: |
@@ -74,27 +69,22 @@ jobs:
 
       - name: Setup Templates
         run: |
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
-          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
               ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
           fi
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
       - name: Download Linux/Web Templates
         run: |
           apt-get update -qq && apt-get install -y -qq curl unzip
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
-          cp *.so *.arpa ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
-          cp *.so *.arpa ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp *.so *.arpa *.zip ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Linux Build
         run: |
@@ -126,27 +116,22 @@ jobs:
 
       - name: Setup Templates
         run: |
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
-          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
               ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
           fi
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
       - name: Download Linux/Web Templates
         run: |
           apt-get update -qq && apt-get install -y -qq curl unzip
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
-          cp *.so *.arpa ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
-          cp *.so *.arpa ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp *.so *.arpa *.zip ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
       - name: Web Build
         run: |
@@ -194,17 +179,12 @@ jobs:
 
       - name: Setup Templates
         run: |
-          mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
-          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/* \
-              ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          fi
           if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
             cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
               ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
           fi
-          ls -la ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
 
       - name: Download Android Template
         run: |
