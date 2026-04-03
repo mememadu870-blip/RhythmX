@@ -32,36 +32,26 @@ jobs:
         run: |
           echo "=== Downloading Godot 4.6.1 Export Templates ==="
 
-          # Create templates directory structure for Godot 4.6
           mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
 
           # Godot 4.6.1 export templates release URL
           TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable"
 
-          echo "Downloading Linux export templates..."
-          curl -L -o linux_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_linux_release.zip"
-          unzip -o linux_release.zip -d /tmp/linux_templates/
-          # Copy the actual template binary, not the ZIP
-          cp /tmp/linux_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/linux_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          # Download the main export templates package (contains all platforms)
+          echo "Downloading main export templates..."
+          curl -L -o export_templates.tpz "${TEMPLATES_URL}/Godot_v4.6.1-stable_export_templates.tpz"
+          unzip -o export_templates.tpz -d /tmp/templates/
 
-          echo "Downloading Web export templates..."
-          curl -L -o web_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_web_release.zip"
-          unzip -o web_release.zip -d /tmp/web_templates/
-          cp /tmp/web_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/web_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          # Copy template files to Godot template directory
+          cp /tmp/templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          cp /tmp/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
-          echo "Downloading Android export templates..."
-          curl -L -o android_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_android_release.zip"
-          unzip -o android_release.zip -d /tmp/android_templates/
-          cp /tmp/android_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
-          cp /tmp/android_templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
-
-          echo "Downloading Windows export templates (for completeness)..."
-          curl -L -o windows_release.zip "${TEMPLATES_URL}/Godot_v4.6.1-stable_windows_release.zip"
-          unzip -o windows_release.zip -d /tmp/windows_templates/
-          cp /tmp/windows_templates/* ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/
+          # Download Android AAR template (required for Gradle builds)
+          echo "Downloading Android AAR template..."
+          curl -L -o android_template.aar "${TEMPLATES_URL}/godot-lib.4.6.1.stable.template_release.aar"
+          cp android_template.aar ~/.local/share/godot/templates/${GODOT_VERSION_FULL}.stable/android_release.apk
+          cp android_template.aar ~/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/android_release.apk
 
           echo "=== Installed Template Files ==="
           echo "--- templates dir ---"
