@@ -103,8 +103,12 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -p build/linux
-          echo "=== Available export presets ==="
-          godot --headless --list-features 2>&1 | head -20 || echo "Feature list not available"
+          echo "=== Godot version ==="
+          godot --version
+          echo "=== Template directory ==="
+          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates dir"
+          echo "=== Export presets in project ==="
+          grep "^name=" export_presets.cfg || echo "No presets found"
           echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Linux/X11" 2>&1 | tee linux_build.log
           EXIT_CODE=$?
