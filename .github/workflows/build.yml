@@ -55,7 +55,7 @@ jobs:
           path: |
             build/windows/*.exe
             build/windows/*.pck
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # ============================================================
   # Linux Export
@@ -128,7 +128,7 @@ jobs:
         with:
           name: linux-build
           path: build/linux/*.x86_64
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # ============================================================
   # Web Export
@@ -202,7 +202,7 @@ jobs:
             build/web/*.pck
             build/web/*.wasm
             build/web/*.js
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
@@ -330,7 +330,7 @@ jobs:
         with:
           name: android-apk
           path: build/android/*.apk
-          if-no-files-found: warn
+          if-no-files-found: error
 
   # ============================================================
   # Build Summary
