@@ -185,7 +185,7 @@ jobs:
           echo "=== Godot version ==="
           godot --version
           echo "=== Template directory ==="
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates dir"
+          ls -la ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates dir"
           echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Web" 2>&1 | tee web_build.log
           EXIT_CODE=$?
