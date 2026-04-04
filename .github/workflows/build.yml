@@ -89,10 +89,16 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -p build/linux
+          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Linux/X11" 2>&1 | tee linux_build.log
           EXIT_CODE=$?
+          echo "=== Export exit code: $EXIT_CODE ==="
+          echo "=== Files in root ==="
+          ls -lh *.x86_64 *.pck 2>/dev/null || echo "No .x86_64/.pck in root"
+          echo "=== Files in build/linux ==="
+          ls -lh build/linux/ 2>/dev/null || echo "build/linux empty"
           [ -f "RhythmX.x86_64" ] && cp -v RhythmX.x86_64 build/linux/
-          ls -lh build/linux/ || echo "build/linux empty"
+          [ -f "RhythmX.pck" ] && cp -v RhythmX.pck build/linux/
           exit $EXIT_CODE
 
       - name: Upload Artifact
@@ -136,10 +142,15 @@ jobs:
       - name: Web Build
         run: |
           mkdir -p build/web
+          echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Web" 2>&1 | tee web_build.log
           EXIT_CODE=$?
+          echo "=== Export exit code: $EXIT_CODE ==="
+          echo "=== Files in root ==="
+          ls -lh RhythmX_web/ 2>/dev/null || echo "No RhythmX_web dir in root"
+          echo "=== Files in build/web ==="
+          ls -lh build/web/ 2>/dev/null || echo "build/web empty"
           if [ -d "RhythmX_web" ]; then cp -rv RhythmX_web/* build/web/; fi
-          ls -lh build/web/ || echo "build/web empty"
           exit $EXIT_CODE
 
       - name: Upload Artifact
