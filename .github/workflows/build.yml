@@ -94,8 +94,10 @@ jobs:
           ls -la templates/
           # Copy template binaries directly from templates/ subdirectory
           cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-          # Extract nested zips
-          for f in templates/*.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/; done
+          # Extract web zip files
+          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
           cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
@@ -165,8 +167,10 @@ jobs:
           ls -la templates/
           # Copy template binaries directly from templates/ subdirectory
           cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-          # Extract nested zips
-          for f in templates/*.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/; done
+          # Extract web zip files
+          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
           cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
@@ -248,11 +252,17 @@ jobs:
           echo "=== Extracted files ==="
           ls -la templates/
 
-          # Copy Android templates from templates/ subdirectory
+          # Copy Android APK templates
           cp templates/android_release.apk templates/android_debug.apk $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
 
           # Extract android_source.zip for Gradle builds
           [ -f templates/android_source.zip ] && unzip -o templates/android_source.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+
+          # Extract ios.zip (contains iOS templates)
+          [ -f templates/ios.zip ] && unzip -o templates/ios.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+
+          # Extract macos.zip (contains macOS templates)
+          [ -f templates/macos.zip ] && unzip -o templates/macos.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
 
           echo "Installed templates:"
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
