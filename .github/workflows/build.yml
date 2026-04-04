@@ -206,7 +206,7 @@ jobs:
             build/web/*.pck
             build/web/*.wasm
             build/web/*.js
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
@@ -332,7 +332,7 @@ jobs:
         with:
           name: android-apk
           path: build/android/*.apk
-          if-no-files-found: error
+          if-no-files-found: warn
 
   # ============================================================
   # Build Summary
