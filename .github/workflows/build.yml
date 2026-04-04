@@ -89,10 +89,12 @@ jobs:
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
           echo "=== Extracted files ==="
-          ls -la /tmp/
-          # Godot 4.x needs unzipped template binaries, not zip files
-          for f in *.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/; done
-          cp *.so *.arpa $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          ls -la templates/
+          # Copy template binaries directly from templates/ subdirectory
+          cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          # Extract nested zips
+          for f in templates/*.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/; done
+          cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
@@ -152,10 +154,12 @@ jobs:
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
           echo "=== Extracted files ==="
-          ls -la /tmp/
-          # Godot 4.x needs unzipped template binaries, not zip files
-          for f in *.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/; done
-          cp *.so *.arpa $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          ls -la templates/
+          # Copy template binaries directly from templates/ subdirectory
+          cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          # Extract nested zips
+          for f in templates/*.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/; done
+          cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
@@ -229,14 +233,14 @@ jobs:
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
+          echo "=== Extracted files ==="
+          ls -la templates/
 
-          # Extract nested zip files to get actual template binaries
-          for f in *.zip; do [ -f "$f" ] && unzip -o "$f" -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/; done
-          cp *.so *.arpa $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
+          # Copy Android templates from templates/ subdirectory
+          cp templates/android_release.apk templates/android_debug.apk $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ 2>/dev/null || true
 
-          # Download Android AAR template
-          curl -L -o android.aar "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/godot-lib.4.6.1.stable.template_release.aar"
-          cp android.aar $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/android_release.apk
+          # Extract android_source.zip for Gradle builds
+          [ -f templates/android_source.zip ] && unzip -o templates/android_source.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
 
           echo "Installed templates:"
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
