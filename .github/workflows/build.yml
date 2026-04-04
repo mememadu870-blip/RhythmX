@@ -94,6 +94,8 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -p build/linux
+          echo "=== Available export presets ==="
+          godot --headless --list-features 2>&1 | head -20 || echo "Feature list not available"
           echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Linux/X11" 2>&1 | tee linux_build.log
           EXIT_CODE=$?
