@@ -174,12 +174,16 @@ jobs:
       - name: Web Build
         run: |
           mkdir -p build/web
+          echo "=== Godot version ==="
+          godot --version
+          echo "=== Template directory ==="
+          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates dir"
           echo "=== Running Godot export ==="
           godot --headless --verbose --path . --export-release "Web" 2>&1 | tee web_build.log
           EXIT_CODE=$?
           echo "=== Export exit code: $EXIT_CODE ==="
           echo "=== Files in root ==="
-          ls -lh RhythmX_web/ 2>/dev/null || echo "No RhythmX_web dir in root"
+          ls -lhR RhythmX_web/ 2>/dev/null || echo "No RhythmX_web dir in root"
           echo "=== Files in build/web ==="
           ls -lh build/web/ 2>/dev/null || echo "build/web empty"
           if [ -d "RhythmX_web" ]; then cp -rv RhythmX_web/* build/web/; fi
