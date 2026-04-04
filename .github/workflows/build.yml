@@ -234,18 +234,19 @@ jobs:
         run: |
           echo "Container home: $HOME"
           echo "Container user: $(whoami)"
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable" ]; then
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/* \
-              $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/
+          echo "Godot version: ${GODOT_VERSION_FULL}"
+          # Godot 4.x uses X.Y.stable format (e.g., 4.6.stable not 4.6.1.stable)
+          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable/* \
+              $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
           fi
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION_FULL}.stable/ || echo "No templates"
+          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates"
 
       - name: Download Android Template
         run: |
           echo "Container home: $HOME"
           apt-get update -qq && apt-get install -y -qq curl unzip
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
 
           # Download Godot 4.6.1 export templates
           cd /tmp
@@ -254,15 +255,15 @@ jobs:
           echo "=== Extracted files ==="
           ls -la templates/
 
-          # Copy Android APK templates
+          # Copy Android APK templates to Godot 4.x template directory
           cp templates/android_release.apk templates/android_debug.apk $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
 
           # Extract android_source.zip for Gradle builds
-          [ -f templates/android_source.zip ] && unzip -o templates/android_source.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-
-          # Extract ios.zip and macos.zip
-          [ -f templates/ios.zip ] && unzip -o templates/ios.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/macos.zip ] && unzip -o templates/macos.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          # Godot 4.x with gradle_build enabled needs the source template extracted
+          if [ -f templates/android_source.zip ]; then
+            mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/godot.android_build_source.template
+            unzip -o templates/android_source.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/godot.android_build_source.template/
+          fi
 
           echo "Installed templates:"
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
