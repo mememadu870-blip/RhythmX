@@ -94,12 +94,11 @@ jobs:
           unzip -o templates.tpz
           echo "=== Extracted files ==="
           ls -la templates/
-          # Copy template binaries directly from templates/ subdirectory
+          # Copy Linux template binaries
           cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-          # Extract web zip files - Godot needs the contents, not the zip files
-          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          # Web templates: Godot 4.x expects .zip files with specific names
+          [ -f templates/web_debug.zip ] && cp templates/web_debug.zip $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/godot.javascript.debug.zip
+          [ -f templates/web_release.zip ] && cp templates/web_release.zip $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/godot.javascript.opt.zip
           cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
@@ -169,12 +168,11 @@ jobs:
           unzip -o templates.tpz
           echo "=== Extracted files ==="
           ls -la templates/
-          # Copy template binaries directly from templates/ subdirectory
+          # Copy Linux template binaries
           cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-          # Extract web zip files - Godot needs the contents, not the zip files
-          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          # Web templates: Godot 4.x expects .zip files with specific names, not extracted contents
+          [ -f templates/web_debug.zip ] && cp templates/web_debug.zip $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/godot.javascript.debug.zip
+          [ -f templates/web_release.zip ] && cp templates/web_release.zip $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/godot.javascript.opt.zip
           cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
           ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
