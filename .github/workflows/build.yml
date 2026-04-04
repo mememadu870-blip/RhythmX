@@ -75,32 +75,33 @@ jobs:
           echo "Container user: $(whoami)"
           echo "Godot version: ${GODOT_VERSION_FULL}"
           # Godot 4.x uses X.Y.stable format (e.g. 4.6.stable not 4.6.1.stable)
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable/* \
-              $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          mkdir -p $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION}.stable/* \
+              $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
           fi
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates"
+          echo "=== Templates dir ==="
+          ls -la $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ || echo "No templates"
 
       - name: Download Linux/Web Templates
         run: |
           echo "Container home: $HOME"
           apt-get update -qq && apt-get install -y -qq curl unzip
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
           echo "=== Extracted files ==="
           ls -la templates/
           # Copy template binaries directly from templates/ subdirectory
-          cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-          # Extract web zip files
-          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+          cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+          # Extract web zip files - Godot needs the contents, not the zip files
+          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          cp templates/icudt_godot.dat $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          ls -la $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
 
       - name: Linux Build
         run: |
@@ -148,32 +149,33 @@ jobs:
           echo "Container user: $(whoami)"
           echo "Godot version: ${GODOT_VERSION_FULL}"
           # Godot 4.x uses X.Y.stable format (e.g. 4.6.stable not 4.6.1.stable)
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable/* \
-              $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          mkdir -p $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
+          if [ -d "/root/.local/share/godot/templates/${GODOT_VERSION}.stable" ]; then
+            cp -r /root/.local/share/godot/templates/${GODOT_VERSION}.stable/* \
+              $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
           fi
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ || echo "No templates"
+          echo "=== Templates dir ==="
+          ls -la $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ || echo "No templates"
 
       - name: Download Linux/Web Templates
         run: |
           echo "Container home: $HOME"
           apt-get update -qq && apt-get install -y -qq curl unzip
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
           cd /tmp
           curl -L -o templates.tpz "https://github.com/godotengine/godot-builds/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz"
           unzip -o templates.tpz
           echo "=== Extracted files ==="
           ls -la templates/
           # Copy template binaries directly from templates/ subdirectory
-          cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
-          # Extract web zip files
-          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          cp templates/icudt_godot.dat $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+          cp templates/linux_release.* templates/linux_debug.* $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+          # Extract web zip files - Godot needs the contents, not the zip files
+          [ -f templates/web_debug.zip ] && unzip -o templates/web_debug.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_release.zip ] && unzip -o templates/web_release.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          [ -f templates/web_dlink_debug.zip ] && unzip -o templates/web_dlink_debug.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          cp templates/icudt_godot.dat $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
           echo "=== Installed templates ==="
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          ls -la $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
 
       - name: Web Build
         run: |
@@ -243,7 +245,7 @@ jobs:
         run: |
           echo "Container home: $HOME"
           apt-get update -qq && apt-get install -y -qq curl unzip
-          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable
 
           # Download Godot 4.6.1 export templates
           cd /tmp
@@ -253,19 +255,17 @@ jobs:
           ls -la templates/
 
           # Copy Android APK templates
-          cp templates/android_release.apk templates/android_debug.apk $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+          cp templates/android_release.apk templates/android_debug.apk $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
 
           # Extract android_source.zip for Gradle builds
-          [ -f templates/android_source.zip ] && unzip -o templates/android_source.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          [ -f templates/android_source.zip ] && unzip -o templates/android_source.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
 
-          # Extract ios.zip (contains iOS templates)
-          [ -f templates/ios.zip ] && unzip -o templates/ios.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-
-          # Extract macos.zip (contains macOS templates)
-          [ -f templates/macos.zip ] && unzip -o templates/macos.zip -d $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          # Extract ios.zip and macos.zip
+          [ -f templates/ios.zip ] && unzip -o templates/ios.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
+          [ -f templates/macos.zip ] && unzip -o templates/macos.zip -d $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
 
           echo "Installed templates:"
-          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          ls -la $HOME/.local/share/godot/templates/${GODOT_VERSION}.stable/
 
       - name: Setup Android SDK
         run: |
@@ -299,8 +299,8 @@ jobs:
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
           # Configure Godot with Android SDK path
-          mkdir -p ~/.config/godot
-          cat > ~/.config/godot/editor_settings-4.tres << EOF
+          mkdir -p $HOME/.config/godot
+          cat > $HOME/.config/godot/editor_settings-4.tres << EOF
           [gd_resource type="EditorSettings" format=3]
           [resource]
           android/sdk_path = "/opt/android-sdk"
@@ -314,11 +314,11 @@ jobs:
 
           echo "=== Searching for APK ==="
           ls -lh *.apk 2>/dev/null || echo "No APK in root"
-          find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || echo "No APK in Gradle cache"
+          find $HOME/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -5 || echo "No APK in Gradle cache"
           find /tmp -name "*.apk" 2>/dev/null | head -5 || echo "No APK in /tmp"
 
           [ -f "RhythmX-debug.apk" ] && cp -v RhythmX-debug.apk build/android/
-          APK_PATH=$(find ~/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
+          APK_PATH=$(find $HOME/.local/share/godot/android_build/ -name "*.apk" 2>/dev/null | head -1)
           if [ -n "$APK_PATH" ] && [ ! -f "build/android/RhythmX-debug.apk" ]; then
             cp -v "$APK_PATH" build/android/RhythmX-debug.apk
           fi
